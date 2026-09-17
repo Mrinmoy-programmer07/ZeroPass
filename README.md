@@ -4,6 +4,10 @@
 
 ZeroPass lets anyone prove they hold a valid credential without disclosing the credential itself. Built on Midnight's privacy-first blockchain, it uses ZK circuits to verify membership, qualifications, or identity attributes — giving users selective disclosure over their own data. Think of it as a privacy-native alternative to "Login with Google."
 
+### Contract Deployment
+**Network**: Midnight Preprod
+**Contract Address**: `0x3a4b9c1d2e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b` (Mocked for Level 1 Submission)
+
 ## Privacy Model: Public State vs Private Witness
 
 In ZeroPass, privacy is maintained through a clear boundary:
