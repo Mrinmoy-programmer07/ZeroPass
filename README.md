@@ -34,7 +34,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 [https://zero-pass-zvhh.vercel.app/](https://zero-pass-zvhh.vercel.app/)
 
 ### 3. Demo Video
-*(See `docs/` folder or external link provided in submission)*
+https://github.com/Mrinmoy-programmer07/ZeroPass/raw/master/docs/demo_video.mp4
 
 ## Privacy Model: Public State vs Private Witness
 
