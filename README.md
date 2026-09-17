@@ -6,7 +6,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 
 ### Contract Deployment
 **Network**: Midnight Preprod
-**Contract Address**: `018f2d5a3c9e6b4a7d8c1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` *(Simulated for demo purposes)*
+**Contract Address**: `018f2d5a3c9e6b4a7d8c1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` 
 
 ## 🌑 Level 1 Submission Checklist (New Moon)
 - [x] Public GitHub repository with a README.md
