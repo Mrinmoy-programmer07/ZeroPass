@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Shield, Key, Fingerprint, Activity, Zap, CheckCircle2, Lock, TerminalSquare } from 'lucide-react';
 
 const CONTRACT_ADDRESS = '018f2d5a3...e7b9';
