@@ -8,6 +8,23 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 **Network**: Midnight Preprod
 **Contract Address**: `0x3a4b9c1d2e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b` (Mocked for Level 1 Submission)
 
+## Level 1 Submission Checklist
+- [x] Public GitHub repository with a README.md
+- [x] Setup instructions (how to run locally)
+- [ ] Screenshot: successful compile output (circuits listed) *(See Screenshots section)*
+- [ ] Screenshot: contract deployed with address shown *(See Screenshots section)*
+- [x] README section explaining public state vs private witness
+- [x] Initial product idea paragraph
+
+## Screenshots
+*(Replace these placeholders with actual images before final submission)*
+
+### 1. Compile Output
+![Compile Output Screenshot Placeholder](docs/compile_output.png)
+
+### 2. Contract Deployed
+![Deployed Address Screenshot Placeholder](docs/deployed_contract.png)
+
 ## Privacy Model: Public State vs Private Witness
 
 In ZeroPass, privacy is maintained through a clear boundary:
