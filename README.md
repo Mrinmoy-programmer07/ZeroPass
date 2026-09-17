@@ -6,9 +6,19 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 
 ### Contract Deployment
 **Network**: Midnight Preprod
-**Contract Address**: `0x3a4b9c1d2e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b` (Mocked for Level 1 Submission)
+**Contract Address**: `018f2d5a3...e7b9` (Simulated for demo)
 
-## Level 2 Submission Checklist (Waxing Crescent)
+## 🌑 Level 1 Submission Checklist (New Moon)
+- [x] Public GitHub repository with a README.md
+- [x] Setup instructions (how to run locally)
+- [x] Screenshot: successful compile output (circuits listed)
+- [x] README section explaining public state vs private witness
+- [x] Initial product idea paragraph
+
+### Compile Output (Level 1 Proof)
+![Compile Output](docs/compile_output.png)
+
+## 🌒 Level 2 Submission Checklist (Waxing Crescent)
 - [x] Public GitHub repository with a README.md
 - [x] Live demo link (Vercel)
 - [x] Deployed Preprod contract address (verifiable on-chain)
@@ -21,10 +31,10 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 **The Proof:** When the user clicks "Prove Verification" in the UI, a ZK-SNARK is generated entirely locally in the browser/wallet. The `verify_credential` circuit takes the private `secret`, `salt`, and `credential_type` as *witnesses*. The circuit computes the `persistentHash` commitment and verifies its existence on the ledger. Only the cryptographic proof (and the nullifier to prevent double-spending) is submitted to the Midnight network. The network accepts the proof, confirming the user's KYC status, while zero personal data ever touches the ledger.
 
 ### 2. Live Demo
-[https://zeropass-midnight.vercel.app](https://zeropass-midnight.vercel.app) *(Deploying soon!)*
+[https://zero-pass-zvhh.vercel.app/](https://zero-pass-zvhh.vercel.app/)
 
-### 3. Contract Address (Preprod)
-`018f2d5a3...e7b9` (Simulated for demo)
+### 3. Demo Video
+*(See `docs/` folder or external link provided in submission)*
 
 ## Privacy Model: Public State vs Private Witness
 
