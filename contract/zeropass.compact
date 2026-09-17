@@ -3,29 +3,26 @@ pragma language_version 0.26;
 import CompactStandardLibrary;
 
 // ZeroPass - Anonymous Credential Verification
+// Privacy model: witnesses stay private; disclose() explicitly marks what goes on-chain.
 
-// Public credential status stored on-chain
-// We keep it flat — just booleans, to avoid ADT subscript issues
+// Flat primitive maps — avoids ADT subscript limitation
 ledger credential_exists:  Map<Bytes<32>, Boolean>;
 ledger credential_revoked: Map<Bytes<32>, Boolean>;
 ledger credential_type:    Map<Bytes<32>, Bytes<32>>;
 ledger credential_issuer:  Map<Bytes<32>, Bytes<32>>;
 
-// Authorized issuers and admin
 ledger issuer_registry: Map<Bytes<32>, Boolean>;
 ledger admin: Bytes<32>;
 
-// Counters
 ledger total_issued:   Counter;
 ledger total_verified: Counter;
 
-// Witness: nullifier-spent set
 ledger used_nullifiers: Map<Bytes<32>, Boolean>;
 
-// Witnesses (Private — Off-Chain)
-witness get_secret():          Bytes<32>;   // user's private secret
-witness get_salt():            Bytes<32>;   // random salt used at issuance
-witness get_credential_type(): Bytes<32>;   // e.g. "KYC_VERIFIED"
+// Witnesses (private, off-chain only)
+witness get_secret():          Bytes<32>;
+witness get_salt():            Bytes<32>;
+witness get_credential_type(): Bytes<32>;
 witness get_admin_secret():    Bytes<32>;
 witness get_issuer_secret():   Bytes<32>;
 
@@ -41,72 +38,77 @@ struct NullifierInput {
   expected_type: Bytes<32>;
 }
 
-// Initialize the contract — admin_id = persistentHash<Bytes<32>>(admin_secret)
+// Initialize: admin_id = persistentHash<Bytes<32>>(admin_secret)
 constructor(admin_id: Bytes<32>) {
   admin = disclose(admin_id);
   return [];
 }
 
 // Admin registers a trusted issuer
+// issuer_id is the public identity of the issuer (not a secret)
 export circuit register_issuer(issuer_id: Bytes<32>): [] {
-  const secret       = get_admin_secret();
-  const derived      = persistentHash<Bytes<32>>(secret);
+  const secret  = get_admin_secret();
+  const derived = persistentHash<Bytes<32>>(secret);
   assert(derived == admin, "Not admin");
 
-  issuer_registry.insert(issuer_id, true);
+  // issuer_id is a public param — explicitly disclose it as the map key
+  issuer_registry.insert(disclose(issuer_id), true);
   return [];
 }
 
 // Issuer issues a credential commitment
+// commitment is a public value (hash of private inputs, computed off-chain)
 export circuit issue_credential(
-  commitment:      Bytes<32>,
-  cred_type:       Bytes<32>
+  commitment: Bytes<32>,
+  cred_type:  Bytes<32>
 ): [] {
   const secret    = get_issuer_secret();
   const issuer_id = persistentHash<Bytes<32>>(secret);
-  assert(issuer_registry.member(issuer_id), "Unauthorized issuer");
+  // Checking membership reveals that issuer_id is authorized — explicitly disclose
+  assert(issuer_registry.member(disclose(issuer_id)), "Unauthorized issuer");
 
-  credential_exists.insert(commitment, true);
-  credential_revoked.insert(commitment, false);
-  credential_type.insert(commitment, disclose(cred_type));
-  credential_issuer.insert(commitment, disclose(issuer_id));
+  // commitment is a public circuit parameter — disclose it as the map key
+  credential_exists.insert(disclose(commitment),  true);
+  credential_revoked.insert(disclose(commitment), false);
+  credential_type.insert(disclose(commitment),    disclose(cred_type));
+  credential_issuer.insert(disclose(commitment),  disclose(issuer_id));
 
   total_issued.increment(1);
   return [];
 }
 
-// User proves they hold a valid credential without revealing it
+// User proves they hold a valid credential — ZK proof stays private
 export circuit verify_credential(expected_type: Bytes<32>): [] {
   const secret = get_secret();
   const salt   = get_salt();
   const ctype  = get_credential_type();
 
-  // Recompute commitment from private inputs
+  // Compute commitment entirely from private witnesses
   const commitment = persistentHash<CommitInput>(CommitInput {
     secret: secret,
     salt:   salt,
     ctype:  ctype
   });
 
-  // Credential must exist
-  assert(credential_exists.member(commitment), "Credential not registered");
+  // Using the commitment to look up ledger state discloses the commitment hash
+  assert(credential_exists.member(disclose(commitment)),   "Credential not registered");
+  assert(!credential_revoked.member(disclose(commitment)), "Credential revoked");
 
-  // Type must match
+  // Type check — ctype is private but expected_type is a public circuit param
   assert(ctype == expected_type, "Wrong credential type");
 
-  // Credential must not be revoked
-  assert(!credential_revoked.member(commitment), "Credential revoked");
-
-  // Nullifier check — prevent double-use
+  // Nullifier: prevents double-spending without revealing which credential was used
   const nullify_label = pad(32, "nullify");
   const nullifier = persistentHash<NullifierInput>(NullifierInput {
     secret:        secret,
     label:         nullify_label,
     expected_type: expected_type
   });
-  assert(!used_nullifiers.member(nullifier), "Credential already used");
 
-  used_nullifiers.insert(nullifier, disclose(true));
+  // Using nullifier in ledger ops discloses it — must wrap with disclose()
+  assert(!used_nullifiers.member(disclose(nullifier)), "Credential already used");
+  used_nullifiers.insert(disclose(nullifier), true);
+
   total_verified.increment(1);
   return [];
 }
@@ -115,9 +117,9 @@ export circuit verify_credential(expected_type: Bytes<32>): [] {
 export circuit revoke_credential(commitment: Bytes<32>): [] {
   const secret    = get_issuer_secret();
   const issuer_id = persistentHash<Bytes<32>>(secret);
-  assert(issuer_registry.member(issuer_id), "Unauthorized");
-  assert(credential_exists.member(commitment), "Credential not found");
+  assert(issuer_registry.member(disclose(issuer_id)), "Unauthorized");
+  assert(credential_exists.member(disclose(commitment)), "Credential not found");
 
-  credential_revoked.insert(commitment, true);
+  credential_revoked.insert(disclose(commitment), true);
   return [];
 }
