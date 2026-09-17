@@ -12,7 +12,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 - [x] Public GitHub repository with a README.md
 - [x] Setup instructions (how to run locally)
 - [x] Screenshot: successful compile output (circuits listed)
-- [x] Screenshot: contract deployed with address shown
+- [ ] Screenshot: contract deployed with address shown *(pending — requires proof-server access, targeting Level 2)*
 - [x] README section explaining public state vs private witness
 - [x] Initial product idea paragraph
 
@@ -23,7 +23,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 ![Compile Output](docs/compile_output.png)
 
 ### 2. Contract Deployed
-![Deployed Address Screenshot Placeholder](docs/deployed_contract.png)
+> 🔜 **Coming in Level 2** — Deployment to Midnight Preprod requires the `proof-server` Docker image from the private Midnight registry (`ghcr.io/midnight-ntwrk/proof-server`). Once developer access is granted via the Midnight Discord, the full deployment script at `scripts/deploy.mjs` will be executed and the on-chain contract address recorded here.
 
 ## Privacy Model: Public State vs Private Witness
 
