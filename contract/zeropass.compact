@@ -1,119 +1,123 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
 // ZeroPass - Anonymous Credential Verification
 
-// Represents what metadata is public about a credential slot
-struct CredentialMeta {
-  credential_type: Bytes<32>;   // e.g. "KYC_VERIFIED"
-  issuer_id:       Bytes<32>;   // Hash of the issuer's public key
-  issued_at:       Uint<64>;    // Block height when issued
-  expiry_block:    Uint<64>;    // 0 = no expiry
-  is_revoked:      Boolean;
-}
+// Public credential status stored on-chain
+// We keep it flat — just booleans, to avoid ADT subscript issues
+ledger credential_exists:  Map<Bytes<32>, Boolean>;
+ledger credential_revoked: Map<Bytes<32>, Boolean>;
+ledger credential_type:    Map<Bytes<32>, Bytes<32>>;
+ledger credential_issuer:  Map<Bytes<32>, Bytes<32>>;
 
-// All public, on-chain state
-ledger credential_registry: Map<Bytes<32>, CredentialMeta>;
-//     ^ key = commitment = hash(secret || salt || credential_type || expiry)
-
-ledger used_nullifiers: Map<Bytes<32>, Boolean>;
-//     ^ key = nullifier = hash(secret || "nullify" || expected_type)
-
+// Authorized issuers and admin
 ledger issuer_registry: Map<Bytes<32>, Boolean>;
-//     ^ key = issuer_id, value = true if authorized
-
 ledger admin: Bytes<32>;
+
+// Counters
 ledger total_issued:   Counter;
 ledger total_verified: Counter;
+
+// Witness: nullifier-spent set
+ledger used_nullifiers: Map<Bytes<32>, Boolean>;
 
 // Witnesses (Private — Off-Chain)
 witness get_secret():          Bytes<32>;   // user's private secret
 witness get_salt():            Bytes<32>;   // random salt used at issuance
 witness get_credential_type(): Bytes<32>;   // e.g. "KYC_VERIFIED"
-witness get_expiry_block():    Uint<64>;    // credential expiry
-witness get_issuer_id():       Bytes<32>;   // which issuer minted this
+witness get_admin_secret():    Bytes<32>;
+witness get_issuer_secret():   Bytes<32>;
 
-// Initialize the contract
-export circuit constructor(admin_id: Bytes<32>): Void {
+struct CommitInput {
+  secret: Bytes<32>;
+  salt:   Bytes<32>;
+  ctype:  Bytes<32>;
+}
+
+struct NullifierInput {
+  secret:        Bytes<32>;
+  label:         Bytes<32>;
+  expected_type: Bytes<32>;
+}
+
+// Initialize the contract — admin_id = persistentHash<Bytes<32>>(admin_secret)
+constructor(admin_id: Bytes<32>) {
   admin = disclose(admin_id);
+  return [];
 }
 
-// ----------------------------------------------------
-// Circuits (Entry Points)
-// ----------------------------------------------------
+// Admin registers a trusted issuer
+export circuit register_issuer(issuer_id: Bytes<32>): [] {
+  const secret       = get_admin_secret();
+  const derived      = persistentHash<Bytes<32>>(secret);
+  assert(derived == admin, "Not admin");
 
-export circuit register_issuer(issuer_id: Bytes<32>): Void {
-  assert(kernel.caller() == admin, "Not admin");
-  issuer_registry[issuer_id] = true;
+  issuer_registry.insert(issuer_id, true);
+  return [];
 }
 
+// Issuer issues a credential commitment
 export circuit issue_credential(
-  commitment:      Bytes<32>,   // hash(secret||salt||type||expiry)
-  credential_type: Bytes<32>,
-  expiry_block:    Uint<64>
-): Void {
-  const issuer_id = kernel.caller();
+  commitment:      Bytes<32>,
+  cred_type:       Bytes<32>
+): [] {
+  const secret    = get_issuer_secret();
+  const issuer_id = persistentHash<Bytes<32>>(secret);
   assert(issuer_registry.member(issuer_id), "Unauthorized issuer");
 
-  credential_registry[commitment] = CredentialMeta {
-    credential_type: disclose(credential_type),
-    issuer_id:       disclose(issuer_id),
-    issued_at:       disclose(kernel.block_height()),
-    expiry_block:    disclose(expiry_block),
-    is_revoked:      false
-  };
+  credential_exists.insert(commitment, true);
+  credential_revoked.insert(commitment, false);
+  credential_type.insert(commitment, disclose(cred_type));
+  credential_issuer.insert(commitment, disclose(issuer_id));
 
   total_issued.increment(1);
+  return [];
 }
 
-export circuit verify_credential(expected_type: Bytes<32>): Void {
-  const secret          = get_secret();
-  const salt            = get_salt();
-  const credential_type = get_credential_type();
-  const expiry_block    = get_expiry_block();
-  const issuer_id       = get_issuer_id();
+// User proves they hold a valid credential without revealing it
+export circuit verify_credential(expected_type: Bytes<32>): [] {
+  const secret = get_secret();
+  const salt   = get_salt();
+  const ctype  = get_credential_type();
 
   // Recompute commitment from private inputs
-  const commitment = hash<Bytes<32>>(secret, salt, credential_type, expiry_block);
+  const commitment = persistentHash<CommitInput>(CommitInput {
+    secret: secret,
+    salt:   salt,
+    ctype:  ctype
+  });
 
-  // Check it exists
-  assert(
-    credential_registry.member(commitment),
-    "Credential not registered"
-  );
+  // Credential must exist
+  assert(credential_exists.member(commitment), "Credential not registered");
 
-  // Check type matches
-  assert(credential_type == expected_type, "Wrong credential type");
+  // Type must match
+  assert(ctype == expected_type, "Wrong credential type");
 
-  // Check not expired
-  const meta = credential_registry[commitment];
-  assert(
-    meta.expiry_block == 0 || kernel.block_height() < meta.expiry_block,
-    "Credential expired"
-  );
+  // Credential must not be revoked
+  assert(!credential_revoked.member(commitment), "Credential revoked");
 
-  // Check not revoked
-  assert(meta.is_revoked == false, "Credential revoked");
-
-  // Compute & check nullifier
-  const nullify_label = hash<Bytes<32>>(pad(32, "nullify"));
-  const nullifier = hash<Bytes<32>>(secret, nullify_label, expected_type);
+  // Nullifier check — prevent double-use
+  const nullify_label = pad(32, "nullify");
+  const nullifier = persistentHash<NullifierInput>(NullifierInput {
+    secret:        secret,
+    label:         nullify_label,
+    expected_type: expected_type
+  });
   assert(!used_nullifiers.member(nullifier), "Credential already used");
 
-  // Mark nullifier as spent
-  used_nullifiers[nullifier] = disclose(true);
+  used_nullifiers.insert(nullifier, disclose(true));
   total_verified.increment(1);
+  return [];
 }
 
-export circuit revoke_credential(commitment: Bytes<32>): Void {
-  const issuer_id = kernel.caller();
+// Issuer revokes a credential
+export circuit revoke_credential(commitment: Bytes<32>): [] {
+  const secret    = get_issuer_secret();
+  const issuer_id = persistentHash<Bytes<32>>(secret);
   assert(issuer_registry.member(issuer_id), "Unauthorized");
+  assert(credential_exists.member(commitment), "Credential not found");
 
-  const meta = credential_registry[commitment];
-  assert(meta.issuer_id == issuer_id, "Not your credential");
-
-  credential_registry[commitment] = CredentialMeta {
-    credential_type: meta.credential_type,
-    issuer_id:       meta.issuer_id,
-    issued_at:       meta.issued_at,
-    expiry_block:    meta.expiry_block,
-    is_revoked:      true
-  };
+  credential_revoked.insert(commitment, true);
+  return [];
 }
