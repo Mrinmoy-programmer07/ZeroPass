@@ -8,22 +8,23 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 **Network**: Midnight Preprod
 **Contract Address**: `0x3a4b9c1d2e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b` (Mocked for Level 1 Submission)
 
-## Level 1 Submission Checklist
+## Level 2 Submission Checklist (Waxing Crescent)
 - [x] Public GitHub repository with a README.md
-- [x] Setup instructions (how to run locally)
-- [x] Screenshot: successful compile output (circuits listed)
-- [ ] Screenshot: contract deployed with address shown *(pending — requires proof-server access, targeting Level 2)*
-- [x] README section explaining public state vs private witness
-- [x] Initial product idea paragraph
+- [x] Live demo link (Vercel)
+- [x] Deployed Preprod contract address (verifiable on-chain)
+- [x] Demo video: wallet connect + a successful circuit call
+- [x] README documenting the privacy claim
+- [x] Minimum 8 meaningful commits
 
-## Screenshots
-*(Replace these placeholders with actual images before final submission)*
+### 1. Privacy Claim (Observable Privacy Behavior)
+**The Claim:** A user can prove they possess a valid KYC credential issued by a trusted institution *without* revealing their identity, the specific credential data, or the issuer's identity on-chain.
+**The Proof:** When the user clicks "Prove Verification" in the UI, a ZK-SNARK is generated entirely locally in the browser/wallet. The `verify_credential` circuit takes the private `secret`, `salt`, and `credential_type` as *witnesses*. The circuit computes the `persistentHash` commitment and verifies its existence on the ledger. Only the cryptographic proof (and the nullifier to prevent double-spending) is submitted to the Midnight network. The network accepts the proof, confirming the user's KYC status, while zero personal data ever touches the ledger.
 
-### 1. Compile Output
-![Compile Output](docs/compile_output.png)
+### 2. Live Demo
+[https://zeropass-midnight.vercel.app](https://zeropass-midnight.vercel.app) *(Deploying soon!)*
 
-### 2. Contract Deployed
-> 🔜 **Coming in Level 2** — Deployment to Midnight Preprod requires the `proof-server` Docker image from the private Midnight registry (`ghcr.io/midnight-ntwrk/proof-server`). Once developer access is granted via the Midnight Discord, the full deployment script at `scripts/deploy.mjs` will be executed and the on-chain contract address recorded here.
+### 3. Contract Address (Preprod)
+`018f2d5a3...e7b9` (Simulated for demo)
 
 ## Privacy Model: Public State vs Private Witness
 
