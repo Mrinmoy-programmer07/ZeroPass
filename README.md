@@ -6,7 +6,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 
 ### Contract Deployment
 **Network**: Midnight Preprod
-**Contract Address**: `018f2d5a3...e7b9` (Simulated for demo)
+**Contract Address**: `018f2d5a3c9e6b4a7d8c1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` *(Simulated for demo purposes)*
 
 ## 🌑 Level 1 Submission Checklist (New Moon)
 - [x] Public GitHub repository with a README.md
@@ -43,6 +43,34 @@ In ZeroPass, privacy is maintained through a clear boundary:
 *   **Private Witness (Off-Chain)**: The actual credential details (e.g., identity, qualifications) and a secret cryptographic salt are stored locally on the user's device. This data is **never** sent to the blockchain.
 *   **Zero-Knowledge Circuit (Local)**: The Midnight ZK circuit runs locally on the user's device, generating a cryptographic proof that the user possesses a valid credential matching the requirements, without revealing the credential itself. It also generates a unique "nullifier" to prevent replay attacks.
 *   **Public State (On-Chain)**: Only the ZK proof and the resulting nullifier are submitted to the network. An observer can see that *someone* with a valid credential successfully verified their status, but they cannot determine *who* it was or read their private credential data.
+
+## Smart Contract (Compact)
+The `zeropass` contract is written in Midnight's native ZK language, **Compact**. It enforces strict witness disclosure rules and manages public credential hashes on the ledger.
+
+```typescript
+pragma language_version >= 0.26.0;
+
+import { persistentHash } from "std";
+
+export ledger credentials: Map<Bytes<32>, Boolean>;
+export ledger revoked: Map<Bytes<32>, Boolean>;
+
+// The user must prove they know the secret without revealing it
+export circuit verify_credential(
+  issuer_id: Bytes<32>,
+  ctype: Bytes<32>
+): void {
+  // Private witness evaluation
+  const secret = get_user_secret();
+  
+  // Hash the private secret to match the public commitment
+  const credential_hash = persistentHash<Vector<3, Bytes<32>>>([issuer_id, ctype, secret]);
+  
+  // Verify the credential exists and is NOT revoked on the public ledger
+  assert credentials.member(credential_hash) "Credential does not exist";
+  assert !revoked.member(credential_hash) "Credential has been revoked";
+}
+```
 
 ## Setup Instructions (Local Development)
 
