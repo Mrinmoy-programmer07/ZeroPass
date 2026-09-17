@@ -1,0 +1,18 @@
+{
+  "name": "zeropass",
+  "version": "1.0.0",
+  "description": "ZeroPass Midnight Compact Contract",
+  "scripts": {
+    "compile": "docker run --rm -v ${PWD}:/mnt ghcr.io/midnight-ntwrk/compactc:latest --out-dir /mnt/contract/managed /mnt/contract/zeropass.compact",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0"
+  }
+}
