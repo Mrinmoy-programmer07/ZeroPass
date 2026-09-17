@@ -12,10 +12,30 @@ export default function App() {
   const [proofStatus, setProofStatus] = useState<string[]>([]);
   const [verified, setVerified] = useState(false);
 
-  const connectWallet = () => {
-    // Simulate Lace Wallet connection
-    setWalletAddress('addr_test1qpe...j4d8');
-    setWalletConnected(true);
+  const connectWallet = async () => {
+    try {
+      // @ts-ignore - cardano is injected by wallet extensions
+      if (window.cardano && window.cardano.lace) {
+        // @ts-ignore
+        const api = await window.cardano.lace.enable();
+        const addresses = await api.getUsedAddresses();
+        // Cardano addresses from Lace are hex encoded, so we just truncate for display
+        const displayAddr = addresses && addresses.length > 0 
+          ? `addr_${addresses[0].substring(0, 8)}...` 
+          : 'Lace Connected';
+        
+        setWalletAddress(displayAddr);
+        setWalletConnected(true);
+      } else {
+        // Fallback to simulation if Lace is not installed in the browser
+        console.warn("Lace wallet extension not found. Using simulated connection.");
+        setWalletAddress('addr_test1qpe...j4d8');
+        setWalletConnected(true);
+      }
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+      alert("Failed to connect to Lace wallet.");
+    }
   };
 
   const generateProof = async () => {
