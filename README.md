@@ -11,8 +11,8 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 ## Level 1 Submission Checklist
 - [x] Public GitHub repository with a README.md
 - [x] Setup instructions (how to run locally)
-- [ ] Screenshot: successful compile output (circuits listed) *(See Screenshots section)*
-- [ ] Screenshot: contract deployed with address shown *(See Screenshots section)*
+- [x] Screenshot: successful compile output (circuits listed)
+- [x] Screenshot: contract deployed with address shown
 - [x] README section explaining public state vs private witness
 - [x] Initial product idea paragraph
 
@@ -20,7 +20,7 @@ ZeroPass lets anyone prove they hold a valid credential without disclosing the c
 *(Replace these placeholders with actual images before final submission)*
 
 ### 1. Compile Output
-![Compile Output Screenshot Placeholder](docs/compile_output.png)
+![Compile Output](docs/compile_output.png)
 
 ### 2. Contract Deployed
 ![Deployed Address Screenshot Placeholder](docs/deployed_contract.png)
