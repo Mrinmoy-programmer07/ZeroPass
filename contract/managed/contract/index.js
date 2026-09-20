@@ -1,5 +1,5 @@
 import * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
-__compactRuntime.checkRuntimeVersion('0.19.0');
+__compactRuntime.checkRuntimeVersion('0.16.0');
 
 const _descriptor_0 = new __compactRuntime.CompactTypeBytes(32);
 
@@ -83,8 +83,6 @@ const _descriptor_8 = new _ContractAddress_0();
 
 const _descriptor_9 = new __compactRuntime.CompactTypeUnsignedInteger(255n, 1);
 
-const _descriptor_10 = new __compactRuntime.CompactTypeUnsignedInteger(4294967295n, 4);
-
 export class Contract {
   witnesses;
   constructor(...args_0) {
@@ -112,13 +110,13 @@ export class Contract {
     }
     this.witnesses = witnesses_0;
     this.circuits = {
-      register_issuer: async (...args_1) => {
+      register_issuer: (...args_1) => {
         if (args_1.length !== 2) {
           throw new __compactRuntime.CompactError(`register_issuer: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const issuer_id_0 = args_1[1];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('register_issuer',
                                      'argument 1 (as invoked from Typescript)',
                                      'zeropass.compact line 49 char 1',
@@ -132,7 +130,7 @@ export class Contract {
                                      'Bytes<32>',
                                      issuer_id_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_0.toValue(issuer_id_0),
@@ -142,21 +140,20 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._register_issuer_0(context,
-                                                       partialProofData,
-                                                       issuer_id_0);
+        const result_0 = this._register_issuer_0(context,
+                                                 partialProofData,
+                                                 issuer_id_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
-      issue_credential: async (...args_1) => {
+      issue_credential: (...args_1) => {
         if (args_1.length !== 3) {
           throw new __compactRuntime.CompactError(`issue_credential: expected 3 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const commitment_0 = args_1[1];
         const cred_type_0 = args_1[2];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('issue_credential',
                                      'argument 1 (as invoked from Typescript)',
                                      'zeropass.compact line 61 char 1',
@@ -177,7 +174,7 @@ export class Contract {
                                      'Bytes<32>',
                                      cred_type_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_0.toValue(commitment_0).concat(_descriptor_0.toValue(cred_type_0)),
@@ -187,21 +184,20 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._issue_credential_0(context,
-                                                        partialProofData,
-                                                        commitment_0,
-                                                        cred_type_0);
+        const result_0 = this._issue_credential_0(context,
+                                                  partialProofData,
+                                                  commitment_0,
+                                                  cred_type_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
-      verify_credential: async (...args_1) => {
+      verify_credential: (...args_1) => {
         if (args_1.length !== 2) {
           throw new __compactRuntime.CompactError(`verify_credential: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const expected_type_0 = args_1[1];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('verify_credential',
                                      'argument 1 (as invoked from Typescript)',
                                      'zeropass.compact line 81 char 1',
@@ -215,7 +211,7 @@ export class Contract {
                                      'Bytes<32>',
                                      expected_type_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_0.toValue(expected_type_0),
@@ -225,20 +221,19 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._verify_credential_0(context,
-                                                         partialProofData,
-                                                         expected_type_0);
+        const result_0 = this._verify_credential_0(context,
+                                                   partialProofData,
+                                                   expected_type_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
-      revoke_credential: async (...args_1) => {
+      revoke_credential: (...args_1) => {
         if (args_1.length !== 2) {
           throw new __compactRuntime.CompactError(`revoke_credential: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const commitment_0 = args_1[1];
-        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.callContext.currentQueryContext != undefined)) {
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('revoke_credential',
                                      'argument 1 (as invoked from Typescript)',
                                      'zeropass.compact line 117 char 1',
@@ -252,7 +247,7 @@ export class Contract {
                                      'Bytes<32>',
                                      commitment_0)
         }
-        const context = __compactRuntime.copyCircuitContext(contextOrig_0);
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
             value: _descriptor_0.toValue(commitment_0),
@@ -262,12 +257,11 @@ export class Contract {
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = await this._revoke_credential_0(context,
-                                                         partialProofData,
-                                                         commitment_0);
+        const result_0 = this._revoke_credential_0(context,
+                                                   partialProofData,
+                                                   commitment_0);
         partialProofData.output = { value: [], alignment: [] };
-        __compactRuntime.finalizeCallProofData(context, partialProofData);
-        return { result: result_0, context: context, gasCost: context.callContext.currentGasCost };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       }
     };
     this.impureCircuits = {
@@ -283,7 +277,7 @@ export class Contract {
       revoke_credential: this.circuits.revoke_credential
     };
   }
-  async initialState(...args_0) {
+  initialState(...args_0) {
     if (args_0.length !== 2) {
       throw new __compactRuntime.CompactError(`Contract state constructor: expected 2 arguments (as invoked from Typescript), received ${args_0.length}`);
     }
@@ -324,7 +318,7 @@ export class Contract {
     state_0.setOperation('issue_credential', new __compactRuntime.ContractOperation());
     state_0.setOperation('verify_credential', new __compactRuntime.ContractOperation());
     state_0.setOperation('revoke_credential', new __compactRuntime.ContractOperation());
-    const context = __compactRuntime.createCircuitContext('constructor', __compactRuntime.dummyContractAddress(), constructorContext_0.initialZswapLocalState.coinPublicKey, state_0.data, constructorContext_0.initialPrivateState);
+    const context = __compactRuntime.createCircuitContext(__compactRuntime.dummyContractAddress(), constructorContext_0.initialZswapLocalState.coinPublicKey, state_0.data, constructorContext_0.initialPrivateState);
     const partialProofData = {
       input: { value: [], alignment: [] },
       output: undefined,
@@ -437,11 +431,11 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(admin_id_0),
                                                                                               alignment: _descriptor_0.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
-    state_0.data = new __compactRuntime.ChargedState(context.callContext.currentQueryContext.state.state);
+    state_0.data = new __compactRuntime.ChargedState(context.currentQueryContext.state.state);
     return {
       currentContractState: state_0,
-      currentPrivateState: context.callContext.currentPrivateState,
-      currentZswapLocalState: context.callContext.currentZswapLocalState
+      currentPrivateState: context.currentPrivateState,
+      currentZswapLocalState: context.currentZswapLocalState
     }
   }
   _persistentHash_0(value_0) {
@@ -457,9 +451,9 @@ export class Contract {
     return result_0;
   }
   _get_secret_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.get_secret(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('get_secret',
                                  'return value',
@@ -474,9 +468,9 @@ export class Contract {
     return result_0;
   }
   _get_salt_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.get_salt(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('get_salt',
                                  'return value',
@@ -491,9 +485,9 @@ export class Contract {
     return result_0;
   }
   _get_credential_type_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.get_credential_type(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('get_credential_type',
                                  'return value',
@@ -508,9 +502,9 @@ export class Contract {
     return result_0;
   }
   _get_admin_secret_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.get_admin_secret(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('get_admin_secret',
                                  'return value',
@@ -525,9 +519,9 @@ export class Contract {
     return result_0;
   }
   _get_issuer_secret_0(context, partialProofData) {
-    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.callContext.currentQueryContext.state), context.callContext.currentPrivateState, context.callContext.currentQueryContext.address);
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.get_issuer_secret(witnessContext_0);
-    context.callContext.currentPrivateState = nextPrivateState_0;
+    context.currentPrivateState = nextPrivateState_0;
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('get_issuer_secret',
                                  'return value',
@@ -541,7 +535,7 @@ export class Contract {
     });
     return result_0;
   }
-  async _register_issuer_0(context, partialProofData, issuer_id_0) {
+  _register_issuer_0(context, partialProofData, issuer_id_0) {
     const secret_0 = this._get_admin_secret_0(context, partialProofData);
     const derived_0 = this._persistentHash_2(secret_0);
     __compactRuntime.assert(this._equal_0(derived_0,
@@ -577,8 +571,7 @@ export class Contract {
                                        { ins: { cached: true, n: 1 } }]);
     return [];
   }
-  async _issue_credential_0(context, partialProofData, commitment_0, cred_type_0)
-  {
+  _issue_credential_0(context, partialProofData, commitment_0, cred_type_0) {
     const secret_0 = this._get_issuer_secret_0(context, partialProofData);
     const issuer_id_0 = this._persistentHash_2(secret_0);
     __compactRuntime.assert(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
@@ -684,7 +677,7 @@ export class Contract {
                                        { ins: { cached: true, n: 1 } }]);
     return [];
   }
-  async _verify_credential_0(context, partialProofData, expected_type_0) {
+  _verify_credential_0(context, partialProofData, expected_type_0) {
     const secret_0 = this._get_secret_0(context, partialProofData);
     const salt_0 = this._get_salt_0(context, partialProofData);
     const ctype_0 = this._get_credential_type_0(context, partialProofData);
@@ -783,7 +776,7 @@ export class Contract {
                                        { ins: { cached: true, n: 1 } }]);
     return [];
   }
-  async _revoke_credential_0(context, partialProofData, commitment_0) {
+  _revoke_credential_0(context, partialProofData, commitment_0) {
     const secret_0 = this._get_issuer_secret_0(context, partialProofData);
     const issuer_id_0 = this._persistentHash_2(secret_0);
     __compactRuntime.assert(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
@@ -852,7 +845,7 @@ export function ledger(stateOrChargedState) {
   const state = stateOrChargedState instanceof __compactRuntime.StateValue ? stateOrChargedState : stateOrChargedState.state;
   const chargedState = stateOrChargedState instanceof __compactRuntime.StateValue ? new __compactRuntime.ChargedState(stateOrChargedState) : stateOrChargedState;
   const context = {
-    callContext: { currentQueryContext: new __compactRuntime.QueryContext(chargedState, __compactRuntime.dummyContractAddress()), currentGasCost: __compactRuntime.emptyRunningCost() },
+    currentQueryContext: new __compactRuntime.QueryContext(chargedState, __compactRuntime.dummyContractAddress()),
     costModel: __compactRuntime.CostModel.initialCostModel()
   };
   const partialProofData = {
@@ -865,7 +858,7 @@ export function ledger(stateOrChargedState) {
   };
 }
 const _emptyContext = {
-  callContext: { currentQueryContext: new __compactRuntime.QueryContext(new __compactRuntime.ContractState().data, __compactRuntime.dummyContractAddress()), currentGasCost: __compactRuntime.emptyRunningCost() }
+  currentQueryContext: new __compactRuntime.QueryContext(new __compactRuntime.ContractState().data, __compactRuntime.dummyContractAddress())
 };
 const _dummyContract = new Contract({
   get_secret: (...args) => undefined,
@@ -877,11 +870,4 @@ const _dummyContract = new Contract({
 export const pureCircuits = {};
 export const contractReferenceLocations =
   { tag: 'publicLedgerArray', indices: { } };
-export const expectedVk = {
-  'issue_credential': '676a10bd623de4b4ea09e1726fd1c1d71e59016200e9878ad6260138d6b9bcd4',
-  'register_issuer': '4fd594c4e4c5efcee87722e554f8ecf3f726e487e841bd531850dfffc08df546',
-  'revoke_credential': 'a06d810b455d5afcf954cdbdd9caa238e95c2fb808d2d19c7970ea6aa129d392',
-  'verify_credential': '47b83451c0e893899f77fe156152eb83abe3c6c474fb1f2e26ec944137be4569',
-};
-
 //# sourceMappingURL=index.js.map

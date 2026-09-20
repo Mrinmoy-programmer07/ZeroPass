@@ -1,26 +1,25 @@
 {
   "name": "zeropass",
   "version": "1.0.0",
-  "description": "ZeroPass - Anonymous Credential Verification on Midnight",
+  "private": true,
+  "description": "ZeroPass - Credential Verification on Midnight",
   "type": "module",
+  "engines": { "node": ">=22" },
   "scripts": {
-    "compile": "compact compile contract/zeropass.compact contract/managed",
-    "deploy": "node --experimental-vm-modules scripts/deploy.mjs",
-    "proof-server": "docker run --rm -p 6300:6300 ghcr.io/midnight-ntwrk/proof-server:latest"
+    "compile": "node scripts/compile.mjs",
+    "check": "node scripts/check-toolchain.mjs",
+    "deploy": "node --env-file-if-exists=.env scripts/deploy.mjs",
+    "proof-server": "docker run --rm -p 127.0.0.1:6300:6300 midnightnetwork/proof-server:8.1.0"
   },
   "dependencies": {
-    "@midnight-ntwrk/compact-runtime": "^0.7.0",
-    "@midnight-ntwrk/midnight-js-contracts": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-types": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-network-id": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-level-private-state-provider": "^0.2.0",
-    "@midnight-ntwrk/midnight-js-wallet": "^0.2.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^22.0.0"
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1"
   }
 }
