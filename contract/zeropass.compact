@@ -2,22 +2,28 @@ pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
-// ZeroPass - Anonymous Credential Verification
-// Privacy model: witnesses stay private; disclose() explicitly marks what goes on-chain.
+// ZeroPass - Credential verification with private secret possession.
+// PUBLIC: commitments, types, issuer IDs, revocation flags, the admin ID,
+// issuer registry, counters, verification scopes and spent nullifiers.
+// PRIVATE: holder secret/salt and admin/issuer secret preimages from witnesses.
+// Verification discloses the commitment, linking it to its issuer and type.
+// This contract does not provide anonymous membership or hidden issuers.
+// Pure hash helpers run off-chain; never publish their secret arguments.
 
 // Flat primitive maps — avoids ADT subscript limitation
-ledger credential_exists:  Map<Bytes<32>, Boolean>;
-ledger credential_revoked: Map<Bytes<32>, Boolean>;
-ledger credential_type:    Map<Bytes<32>, Bytes<32>>;
-ledger credential_issuer:  Map<Bytes<32>, Bytes<32>>;
+export ledger credential_exists:  Map<Bytes<32>, Boolean>;
+export ledger credential_revoked: Map<Bytes<32>, Boolean>;
+export ledger credential_type:    Map<Bytes<32>, Bytes<32>>;
+export ledger credential_issuer:  Map<Bytes<32>, Bytes<32>>;
 
-ledger issuer_registry: Map<Bytes<32>, Boolean>;
-ledger admin: Bytes<32>;
+export ledger issuer_registry: Map<Bytes<32>, Boolean>;
+export ledger admin: Bytes<32>;
 
-ledger total_issued:   Counter;
-ledger total_verified: Counter;
+export ledger total_issued:   Counter;
+export ledger total_verified: Counter;
 
-ledger used_nullifiers: Map<Bytes<32>, Boolean>;
+export ledger used_nullifiers: Map<Bytes<32>, Boolean>;
+export ledger verification_scopes: Map<Bytes<32>, Bytes<32>>;
 
 // Witnesses (private, off-chain only)
 witness get_secret():          Bytes<32>;
@@ -36,6 +42,29 @@ struct NullifierInput {
   secret:        Bytes<32>;
   label:         Bytes<32>;
   expected_type: Bytes<32>;
+  scope:         Bytes<32>;
+}
+
+// Share the exact Compact encoding with off-chain clients and tests.
+export pure circuit identity(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Bytes<32>>(secret);
+}
+
+export pure circuit credential_commitment(
+  secret: Bytes<32>, salt: Bytes<32>, ctype: Bytes<32>
+): Bytes<32> {
+  return persistentHash<CommitInput>(CommitInput {
+    secret: secret, salt: salt, ctype: ctype
+  });
+}
+
+export pure circuit verification_nullifier(
+  secret: Bytes<32>, expected_type: Bytes<32>, scope: Bytes<32>
+): Bytes<32> {
+  return persistentHash<NullifierInput>(NullifierInput {
+    secret: secret, label: pad(32, "nullify"),
+    expected_type: expected_type, scope: scope
+  });
 }
 
 // Initialize: admin_id = persistentHash<Bytes<32>>(admin_secret)
@@ -66,6 +95,7 @@ export circuit issue_credential(
   const issuer_id = persistentHash<Bytes<32>>(secret);
   // Checking membership reveals that issuer_id is authorized — explicitly disclose
   assert(issuer_registry.member(disclose(issuer_id)), "Unauthorized issuer");
+  assert(!credential_exists.member(disclose(commitment)), "Credential already registered");
 
   // commitment is a public circuit parameter — disclose it as the map key
   credential_exists.insert(disclose(commitment),  true);
@@ -77,37 +107,31 @@ export circuit issue_credential(
   return [];
 }
 
-// User proves they hold a valid credential — ZK proof stays private
-export circuit verify_credential(expected_type: Bytes<32>): [] {
+// The verifier must issue and validate scope (e.g. a hash of its session challenge).
+// Same holder/type/scope is single-use; separate scopes allow repeat use.
+export circuit verify_credential(expected_type: Bytes<32>, scope: Bytes<32>): [] {
   const secret = get_secret();
   const salt   = get_salt();
   const ctype  = get_credential_type();
 
   // Compute commitment entirely from private witnesses
-  const commitment = persistentHash<CommitInput>(CommitInput {
-    secret: secret,
-    salt:   salt,
-    ctype:  ctype
-  });
+  const commitment = credential_commitment(secret, salt, ctype);
 
   // Using the commitment to look up ledger state discloses the commitment hash
   assert(credential_exists.member(disclose(commitment)),   "Credential not registered");
-  assert(!credential_revoked.member(disclose(commitment)), "Credential revoked");
+  assert(!credential_revoked.lookup(disclose(commitment)), "Credential revoked");
 
   // Type check — ctype is private but expected_type is a public circuit param
   assert(ctype == expected_type, "Wrong credential type");
+  assert(credential_type.lookup(disclose(commitment)) == disclose(expected_type),
+         "Issued credential type mismatch");
 
-  // Nullifier: prevents double-spending without revealing which credential was used
-  const nullify_label = pad(32, "nullify");
-  const nullifier = persistentHash<NullifierInput>(NullifierInput {
-    secret:        secret,
-    label:         nullify_label,
-    expected_type: expected_type
-  });
+  const nullifier = verification_nullifier(secret, expected_type, scope);
 
   // Using nullifier in ledger ops discloses it — must wrap with disclose()
   assert(!used_nullifiers.member(disclose(nullifier)), "Credential already used");
   used_nullifiers.insert(disclose(nullifier), true);
+  verification_scopes.insert(disclose(nullifier), disclose(scope));
 
   total_verified.increment(1);
   return [];
@@ -119,6 +143,8 @@ export circuit revoke_credential(commitment: Bytes<32>): [] {
   const issuer_id = persistentHash<Bytes<32>>(secret);
   assert(issuer_registry.member(disclose(issuer_id)), "Unauthorized");
   assert(credential_exists.member(disclose(commitment)), "Credential not found");
+  assert(credential_issuer.lookup(disclose(commitment)) == disclose(issuer_id),
+         "Only issuing institution can revoke");
 
   credential_revoked.insert(disclose(commitment), true);
   return [];

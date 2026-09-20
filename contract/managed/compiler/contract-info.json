@@ -4,6 +4,88 @@
   "runtime-version": "0.16.0",
   "circuits": [
     {
+      "name": "identity",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "secret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "credential_commitment",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "secret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "salt",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "ctype",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "verification_nullifier",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "secret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "expected_type",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "scope",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
       "name": "register_issuer",
       "pure": false,
       "proof": true,
@@ -55,6 +137,13 @@
       "arguments": [
         {
           "name": "expected_type",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "scope",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -140,7 +229,7 @@
     {
       "name": "credential_exists",
       "index": 0,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -153,7 +242,7 @@
     {
       "name": "credential_revoked",
       "index": 1,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -166,7 +255,7 @@
     {
       "name": "credential_type",
       "index": 2,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -180,7 +269,7 @@
     {
       "name": "credential_issuer",
       "index": 3,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -194,7 +283,7 @@
     {
       "name": "issuer_registry",
       "index": 4,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -207,7 +296,7 @@
     {
       "name": "admin",
       "index": 5,
-      "exported": false,
+      "exported": true,
       "storage": "Cell",
       "type": {
         "type-name": "Bytes",
@@ -217,19 +306,19 @@
     {
       "name": "total_issued",
       "index": 6,
-      "exported": false,
+      "exported": true,
       "storage": "Counter"
     },
     {
       "name": "total_verified",
       "index": 7,
-      "exported": false,
+      "exported": true,
       "storage": "Counter"
     },
     {
       "name": "used_nullifiers",
       "index": 8,
-      "exported": false,
+      "exported": true,
       "storage": "Map",
       "key": {
         "type-name": "Bytes",
@@ -237,6 +326,20 @@
       },
       "value": {
         "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "verification_scopes",
+      "index": 9,
+      "exported": true,
+      "storage": "Map",
+      "key": {
+        "type-name": "Bytes",
+        "length": 32
+      },
+      "value": {
+        "type-name": "Bytes",
+        "length": 32
       }
     }
   ]
