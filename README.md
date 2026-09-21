@@ -1,93 +1,146 @@
 # ZeroPass
 
-> Anonymous Credential Verification on Midnight Network
+Credential verification on Midnight using private secret possession.
 
-ZeroPass lets anyone prove they hold a valid credential without disclosing the credential itself. Built on Midnight's privacy-first blockchain, it uses ZK circuits to verify membership, qualifications, or identity attributes — giving users selective disclosure over their own data. Think of it as a privacy-native alternative to "Login with Google."
+ZeroPass is a prototype for issuing and verifying credentials without publishing
+their secret preimages. A trusted issuer registers a credential commitment; its
+holder proves possession while the contract checks its type and revocation state.
+The product idea is reusable membership or qualification verification with less
+disclosure than handing each service a copy of the underlying document.
 
-### Contract Deployment
-**Network**: Midnight Preprod
-**Contract Address**: `018f2d5a3c9e6b4a7d8c1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` 
+**Current status:** four compiled transaction circuits, 25 passing regression and
+deployment-wiring tests, and a real locally generated verification proof. There
+is **no confirmed Preview/Preprod deployment receipt**. The frontend is an
+explicitly labeled interactive demo; it does not connect a wallet or submit proofs.
 
-## 🌑 Level 1 Submission Checklist (New Moon)
-- [x] Public GitHub repository with a README.md
-- [x] Setup instructions (how to run locally)
-- [x] Screenshot: successful compile output (circuits listed)
-- [x] README section explaining public state vs private witness
-- [x] Initial product idea paragraph
+## Level 1 readiness
 
-### Compile Output (Level 1 Proof)
-![Compile Output](docs/compile_output.png)
+| Requirement | Evidence / status |
+| --- | --- |
+| Own Compact contract | [contract/zeropass.compact](contract/zeropass.compact) |
+| Successful compilation | Pinned compiler 0.31.1; four circuits and generated proof assets; [current output](docs/compile-current.txt) |
+| At least three meaningful passing tests | 25 tests; `npm run validate` |
+| Public/private state explanation | Table below and inline contract comments |
+| Product idea and reproducible setup | This README and linked guides |
+| Meaningful Git history | Five focused repair commits, following the original project history |
+| Actual Preview or Preprod deployment | **Pending funded test wallet, finalization and public receipt** |
 
-## 🌒 Level 2 Submission Checklist (Waxing Crescent)
-- [x] Public GitHub repository with a README.md
-- [x] Live demo link (Vercel)
-- [x] Deployed Preprod contract address (verifiable on-chain)
-- [x] Demo video: wallet connect + a successful circuit call
-- [x] README documenting the privacy claim
-- [x] Minimum 8 meaningful commits
+See [the gap analysis](docs/LEVEL1_REVIEW.md) for the original problems, fixes and
+remaining work. Current command evidence is documented in [TESTING.md](docs/TESTING.md).
+The image below renders captured command output with exit codes and the source
+hash; it is a build-log report, not a terminal screenshot or deployment receipt.
+The older `docs/compile_output.png` remains historical compiler 0.34 evidence.
 
-### 1. Privacy Claim (Observable Privacy Behavior)
-**The Claim:** A user can prove they possess a valid KYC credential issued by a trusted institution *without* revealing their identity, the specific credential data, or the issuer's identity on-chain.
-**The Proof:** When the user clicks "Prove Verification" in the UI, a ZK-SNARK is generated entirely locally in the browser/wallet. The `verify_credential` circuit takes the private `secret`, `salt`, and `credential_type` as *witnesses*. The circuit computes the `persistentHash` commitment and verifies its existence on the ledger. Only the cryptographic proof (and the nullifier to prevent double-spending) is submitted to the Midnight network. The network accepts the proof, confirming the user's KYC status, while zero personal data ever touches the ledger.
+![Current compilation, artifact and local proof evidence](docs/compile-current.png)
 
-### 2. Live Demo
-[https://zero-pass-zvhh.vercel.app/](https://zero-pass-zvhh.vercel.app/)
+## Contract behavior
 
-### 3. Demo Video
-https://github.com/Mrinmoy-programmer07/ZeroPass/raw/master/docs/demo_video.mp4
+| Circuit | Authorization and effect |
+| --- | --- |
+| `register_issuer(issuer_id)` | Admin secret must hash to the constructor's admin ID; registers an issuer |
+| `issue_credential(commitment, cred_type)` | Registered issuer only; rejects duplicate commitments; records owner/type |
+| `verify_credential(expected_type, scope)` | Checks secret/salt commitment, issued type and revocation; records a scoped nullifier |
+| `revoke_credential(commitment)` | Only the recorded issuing institution can revoke |
 
-## Privacy Model: Public State vs Private Witness
+The holder computes `credential_commitment(secret, salt, ctype)` using the
+generated pure helper. Admin and issuer IDs use `identity(secret)`. The same
+holder secret and type can verify once per scope, allowing subsequent sessions
+with different scopes. A verifier must generate and validate its session scope
+and bind the resulting transaction to that session. The contract alone is not
+a complete login protocol.
 
-In ZeroPass, privacy is maintained through a clear boundary:
+## Privacy: what is actually public
 
-*   **Private Witness (Off-Chain)**: The actual credential details (e.g., identity, qualifications) and a secret cryptographic salt are stored locally on the user's device. This data is **never** sent to the blockchain.
-*   **Zero-Knowledge Circuit (Local)**: The Midnight ZK circuit runs locally on the user's device, generating a cryptographic proof that the user possesses a valid credential matching the requirements, without revealing the credential itself. It also generates a unique "nullifier" to prevent replay attacks.
-*   **Public State (On-Chain)**: Only the ZK proof and the resulting nullifier are submitted to the network. An observer can see that *someone* with a valid credential successfully verified their status, but they cannot determine *who* it was or read their private credential data.
+| Data | Visibility |
+| --- | --- |
+| Holder secret and salt | Private witness preimages |
+| Admin and issuer secrets | Private authorization preimages |
+| Credential type | Supplied as a witness, but also stored and checked publicly; not confidential |
+| Credential commitment, existence and revocation | Public ledger and verification lookups |
+| Credential issuer, issuer registry and admin ID | Public identifiers; secret preimages remain private |
+| Issuance/verification counters | Public |
+| Used nullifiers and their verification scopes | Public |
 
-## Smart Contract (Compact)
-The `zeropass` contract is written in Midnight's native ZK language, **Compact**. It enforces strict witness disclosure rules and manages public credential hashes on the ledger.
+Verification discloses the credential commitment, linking activity to its recorded
+issuer and type. ZeroPass does **not** currently provide anonymous membership,
+hidden issuers or unlinkable presentations. Possession of a secret is not proof
+of a person's real-world identity; credential sharing is not prevented.
 
-```typescript
-pragma language_version >= 0.26.0;
+Witness material is sent to the proving process. The scripts require a loopback
+proof server so that this stays on the local machine. Only public transaction
+data and the resulting proof are intended for the chain. The transcript regression
+test checks for raw preimage leakage; it is not an independent security audit.
 
-import { persistentHash } from "std";
+## Run locally
 
-export ledger credentials: Map<Bytes<32>, Boolean>;
-export ledger revoked: Map<Bytes<32>, Boolean>;
+Prerequisites: Node.js 22+, the Compact CLI, and Linux/macOS or Ubuntu WSL on
+Windows. Docker is needed for proving/deployment, not for the offline test suite.
+Follow Midnight's [developer documentation](https://docs.midnight.network/)
+to install the CLI, then install the compiler used by this repository:
 
-// The user must prove they know the secret without revealing it
-export circuit verify_credential(
-  issuer_id: Bytes<32>,
-  ctype: Bytes<32>
-): void {
-  // Private witness evaluation
-  const secret = get_user_secret();
-  
-  // Hash the private secret to match the public commitment
-  const credential_hash = persistentHash<Vector<3, Bytes<32>>>([issuer_id, ctype, secret]);
-  
-  // Verify the credential exists and is NOT revoked on the public ledger
-  assert credentials.member(credential_hash) "Credential does not exist";
-  assert !revoked.member(credential_hash) "Credential has been revoked";
-}
-```
-
-## Setup Instructions (Local Development)
-
-### Prerequisites
-*   Node.js 22
-*   Docker (for running the Midnight Compact Compiler)
-
-### Building the Contract
-To compile the `zeropass.compact` contract into ZK circuits (`managed/` directory):
-
-```bash
+```sh
+git clone https://github.com/Mrinmoy-programmer07/ZeroPass.git
+cd ZeroPass
+npm ci
+compact update --no-set-default 0.31.1
 npm run compile
+npm run validate
 ```
 
-### Running Tests
-To run the test suite verifying the ZK circuit logic:
+On Windows, run `compact update` inside Ubuntu WSL. The compile script invokes
+that compiler through WSL automatically; the other commands run with Windows
+Node. PowerShell users can use `npm.cmd` if script execution policy blocks `npm`.
+See [VERSIONS.md](docs/VERSIONS.md) for the pinned compatibility matrix.
 
-```bash
-npm test
+To generate a real proof with public test fixtures, start Docker and run these
+in separate terminals:
+
+```sh
+npm run proof-server
 ```
+
+```sh
+npm run prove:local
+```
+
+This proves `verify_credential` locally without submitting a transaction. See
+[TESTING.md](docs/TESTING.md) for what each verification layer establishes.
+
+## Deploy to Preview or Preprod
+
+Follow [DEPLOYMENT.md](docs/DEPLOYMENT.md) to configure a private SDK wallet,
+fund it with test tNIGHT, register DUST generation, and deploy. The script uses
+the actual generated contract and saves only finalized public evidence to
+`deployments/<network>.json`. No placeholder address is a deployment.
+
+| Network | Confirmed address |
+| --- | --- |
+| Preprod | Pending |
+| Preview | Pending |
+
+## Frontend walkthrough
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Choose **Explore demo**, then **Run demo**. All credentials and progress steps
+are illustrative. `npm run build` checks TypeScript and creates the production
+bundle; `npm run lint` runs the frontend linter.
+
+The historical hosted demo and [legacy video](docs/demo_video.mp4) are not evidence
+of wallet connectivity, a real proof or network finalization. Level 2 still needs
+real Midnight wallet integration, credential handling, session verification and
+an end-to-end transaction demonstration.
+
+## Repository map
+
+- `contract/zeropass.compact`: source of the four transaction circuits and hash helpers.
+- `contract/managed/`: compiler-generated JavaScript, type definitions and proof assets.
+- `contract/witnesses.mjs`: validated local witness accessors.
+- `tests/`: actual generated-circuit regressions and offline deployment integration.
+- `scripts/`: pinned compilation, wallet, proof and deployment commands.
+- `frontend/`: React/Vite interactive demo.
+- `docs/`: review, version, testing and deployment guidance.

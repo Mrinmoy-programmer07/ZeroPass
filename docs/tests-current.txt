@@ -1,0 +1,42 @@
+Captured: 2026-09-21T19:06:32.522Z
+Source SHA-256: a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5
+Command: node --test tests/deployment.test.mjs tests/zeropass.test.mjs
+Exit: 0
+
+▶ Deployment wiring (offline)
+  ✔ selects testnet endpoints and rejects mainnet or remote proving (3.0146ms)
+  ✔ fails without real secret configuration instead of using zero defaults (0.7064ms)
+  ✔ restores the same testnet wallet deterministically (134.4281ms)
+  ✔ builds a real SDK deployment transaction using compiled artifacts and the hashed administrator (317.5102ms)
+  ✔ loads prover, verifier and ZKIR assets for every transaction circuit (34.3178ms)
+  ✔ persists and restores encrypted private state with all six providers wired (703.4852ms)
+  ✔ exports only finalized public evidence, never private SDK fields (2.6268ms)
+✔ Deployment wiring (offline) (1201.5677ms)
+▶ ZeroPass generated Compact contract
+  ✔ initializes the administrator and empty public state (112.8269ms)
+  ✔ rejects issuer registration by a non-administrator (49.2973ms)
+  ✔ rejects issuance by an unregistered issuer (52.436ms)
+  ✔ issues a credential and records its type, owner and non-revoked status (117.2849ms)
+  ✔ successfully verifies a newly issued, non-revoked credential (119.2425ms)
+  ✔ rejects the same verification scope twice without advancing counters (118.7127ms)
+  ✔ allows the holder to verify in a different session scope (151.7774ms)
+  ✔ rejects a requested credential type that the holder does not have (97.5066ms)
+  ✔ binds verification to the type recorded by the issuer (107.0281ms)
+  ✔ rejects a forged private secret (110.1504ms)
+  ✔ rejects a forged private salt (97.547ms)
+  ✔ rejects a forged private credentialType (88.6667ms)
+  ✔ lets the issuing institution revoke and then rejects verification (108.8352ms)
+  ✔ prevents a different registered issuer from revoking the credential (103.7684ms)
+  ✔ rejects revocation of an unknown credential (57.7185ms)
+  ✔ prevents duplicate issuance from overwriting owner or revocation state (113.1727ms)
+  ✔ keeps raw secret preimages out of public transcripts while disclosing commitments (124.766ms)
+  ✔ fails clearly when required witness material is missing (99.3608ms)
+✔ ZeroPass generated Compact contract (1836.8105ms)
+ℹ tests 25
+ℹ suites 2
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11441.568

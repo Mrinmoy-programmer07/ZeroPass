@@ -1,0 +1,11 @@
+Captured: 2026-09-21T19:06:32.522Z
+Source SHA-256: a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5
+Command: node scripts/check-toolchain.mjs
+Exit: 0
+
+Proof artifacts present: register_issuer
+Proof artifacts present: issue_credential
+Proof artifacts present: verify_credential
+Proof artifacts present: revoke_credential
+Node 24.21.0; compiler 0.31.1; runtime 0.16.0
+Generated contract imports successfully.

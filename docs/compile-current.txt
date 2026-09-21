@@ -1,0 +1,6 @@
+Captured: 2026-09-21T19:06:32.522Z
+Source SHA-256: a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5
+Command: node scripts/compile.mjs
+Exit: 0
+
+Compiling 4 circuits:

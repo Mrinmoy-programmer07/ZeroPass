@@ -1,0 +1,9 @@
+Captured: 2026-09-21T19:10:55.678Z
+Source SHA-256: a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5
+Command: node scripts/prove-local.mjs
+Exit: 0
+
+Real SDK verify_credential transaction constructed from a synthetic local ledger.
+Generating proof with local proof server 8.1.0...
+PASS: verify_credential proof generated in 9.7 seconds.
+This validates local proving only. No wallet funds used; no transaction submitted on-chain.
