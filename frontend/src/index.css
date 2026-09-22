@@ -20,3 +20,58 @@ body {
 .glass-panel {
   @apply bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30;
 }
+
+@layer components {
+  .app-shell { @apply max-w-6xl mx-auto px-4 sm:px-8; }
+  .site-header { @apply flex flex-wrap items-center justify-between gap-4 py-8 border-b border-outline-variant/30; }
+  .brand { @apply flex gap-3 items-center text-primary; }
+  .brand h1 { @apply text-on-surface font-display text-2xl font-bold tracking-tight; }
+  .brand p { @apply text-xs text-on-surface-variant font-mono; }
+  .network-pill { @apply text-xs font-mono border border-primary/30 px-4 py-2 rounded-full text-primary; }
+  .hero { @apply py-12 sm:py-16 max-w-3xl; }
+  .eyebrow { @apply text-xs tracking-widest font-mono text-primary mb-5; }
+  .hero h2 { @apply text-4xl sm:text-6xl font-display font-bold leading-tight mb-5 tracking-tight; }
+  .hero h2 span { @apply text-primary; }
+  .hero > p:not(.eyebrow) { @apply text-lg text-on-surface-variant max-w-2xl leading-relaxed; }
+  .privacy-note { @apply flex items-start gap-3 mt-6 text-sm text-on-surface-variant; }
+  .privacy-note svg { @apply shrink-0 text-primary; }
+  .panel { @apply bg-surface-container-low border border-outline-variant/40 rounded-xl p-5 sm:p-7 mb-6 min-w-0; }
+  .section-title { @apply flex flex-wrap items-center gap-3 mb-5; }
+  .section-title h2 { @apply text-lg font-display font-semibold; }
+  .step { @apply font-mono text-sm text-primary; }
+  .badge { @apply text-xs px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant ml-auto; }
+  .hint { @apply text-sm text-on-surface-variant leading-relaxed my-3; }
+  .mono { @apply font-mono text-xs leading-relaxed mb-4; }
+  .actions { @apply flex flex-wrap items-end gap-3 my-4; }
+  .form-grid { @apply grid gap-4 md:grid-cols-[180px_1fr]; }
+  .workspace-grid { @apply grid gap-6 lg:grid-cols-2; }
+  .workspace-grid .panel { @apply mb-0; }
+  .workspace-grid + .panel { @apply mt-6; }
+  .credential-label { @apply text-xl font-display text-primary my-4; }
+  .error { @apply text-red-300 text-sm leading-relaxed my-4; }
+  .transaction.success { @apply border-tertiary/40; }
+  .transaction.unknown { @apply border-primary/40; }
+  .success-label { @apply text-tertiary text-sm mt-3; }
+  .empty-state { @apply py-10 text-center; }
+  .empty-state svg { @apply text-primary mx-auto mb-4; }
+  .empty-state h2 { @apply text-xl font-display mb-3; }
+  .empty-state p { @apply max-w-xl mx-auto text-on-surface-variant leading-relaxed; }
+  .privacy-footer { @apply py-8 max-w-3xl; }
+  .privacy-footer h2 { @apply font-display text-lg mb-3; }
+  .privacy-footer p { @apply text-sm text-on-surface-variant leading-relaxed mb-3; }
+  label { @apply flex flex-col gap-2 text-sm text-on-surface-variant my-3 min-w-0; }
+  input, select, textarea { @apply w-full rounded-lg border border-outline-variant bg-surface-container text-on-surface p-3 text-sm min-w-0; }
+  textarea { @apply font-mono text-xs leading-relaxed resize-y; }
+  button, .file-button { @apply rounded-lg bg-primary text-on-primary font-semibold text-sm px-4 py-3 transition-colors; }
+  button:hover { @apply bg-primary-container; }
+  button.secondary { @apply bg-surface-container-high text-on-surface border border-outline-variant; }
+  button.secondary:hover { @apply border-primary; }
+  button.text-button { @apply bg-transparent text-primary px-0 underline underline-offset-4; }
+  button:disabled, input:disabled, select:disabled { @apply opacity-50 cursor-not-allowed; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { @apply outline outline-2 outline-offset-4 outline-primary; }
+  .file-button { @apply bg-surface-container-high text-on-surface; }
+  .file-button input { @apply p-0 border-0 text-xs; }
+  summary { @apply cursor-pointer font-display text-lg; }
+  hr { @apply my-6 border-outline-variant/40; }
+  footer { @apply py-8 text-xs text-on-surface-variant font-mono border-t border-outline-variant/30; }
+}
