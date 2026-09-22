@@ -1,5 +1,8 @@
 # Frontend verification
 
+Historical Level 1 simulation report. The simulation was replaced during Level 2;
+see [LEVEL2_VERIFICATION.md](LEVEL2_VERIFICATION.md) for the current interface.
+
 Verified locally on 2026-09-21 using the Vite development server and a real browser.
 The user flow is Explore demo → Run demo → Demo complete → Reset demo → End demo.
 This flow changes local React state only; it has no API, wallet or chain boundary.

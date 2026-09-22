@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>ZeroPass browser proof integration check</title>
+<body><h1>Browser proof integration check</h1><p>Public test fixtures only. Synthetic ledger. No wallet connection, funds or network submission.</p>
+<button id="run">Generate real local proof</button><pre id="result" role="status">Ready. Start local proof server 8.1.0 first.</pre>
+<script type="module">
+import { runBrowserProof } from './proof-browser.ts';
+const button = document.querySelector('#run');
+button.addEventListener('click', async () => {
+  button.disabled = true;
+  const result = document.querySelector('#result');
+  result.textContent = 'Building fixture transaction and generating a real proof…';
+  try { result.textContent = await runBrowserProof(); }
+  catch { result.textContent = 'FAIL: browser proof check. Inspect the local proof server and browser console.'; }
+  finally { button.disabled = false; }
+});
+</script></body></html>

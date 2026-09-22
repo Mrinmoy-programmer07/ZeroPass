@@ -32,6 +32,10 @@ instead of the original compiler 0.34 screenshot.
 
 ## Product work beyond the Level 1 core
 
+This list records the original audit. Level 2 subsequently implements the wallet,
+vault and institution UI; see [LEVEL2.md](LEVEL2.md) for current status. Network
+deployment and real-wallet verification remain pending.
+
 - Connect the frontend to a real Midnight wallet and providers, with transaction
   pending/failure/finality states and local credential persistence/recovery.
 - Implement issuer/admin user flows and secure holder-to-issuer commitment exchange.

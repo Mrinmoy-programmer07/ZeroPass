@@ -1,32 +1,22 @@
-# React + TypeScript + Vite
+# ZeroPass frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Real Midnight connector, encrypted local credential vault and contract operations.
+See the root [README](../README.md) in Level 1 → Level 2 order and the detailed
+[Level 2 guide](../docs/LEVEL2.md).
 
-Currently, two official plugins are available:
+From the repository root:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm ci
+npm --prefix frontend ci
+npm --prefix frontend test
+npm --prefix frontend run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+`predev` and `prebuild` prepare the public proof assets from `contract/managed/`.
+The root dependencies are required by the generated contract import. For hosting,
+use the repository-root `vercel.json`; do not deploy this directory in isolation.
+
+Production checks: `npm --prefix frontend run build` and
+`npm --prefix frontend run lint`. Public environment settings are listed in
+`.env.example`. Never put secrets in a `VITE_*` value.
