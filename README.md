@@ -119,7 +119,7 @@ the actual generated contract and saves only finalized public evidence to
 | Network | Confirmed address |
 | --- | --- |
 | Preprod | `08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a` |
-| Preview | Pending |
+
 
 Preprod transaction hash:
 `513d5894017031af71422f8f4352695067e6cd1e38e0b4d827a8723e889668f3`.
