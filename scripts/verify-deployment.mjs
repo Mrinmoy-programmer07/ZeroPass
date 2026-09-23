@@ -4,9 +4,8 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { verifyContractState } from '@midnight-ntwrk/midnight-js-contracts';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import { SucceedEntirely } from '@midnight-ntwrk/midnight-js-types';
 import { networkConfig } from './lib/config.mjs';
-import { managedDirectory } from './lib/deployment.mjs';
+import { managedDirectory, verifyReceiptTransaction } from './lib/deployment.mjs';
 
 // This command reads public chain data only and never submits a transaction.
 const deadline = setTimeout(() => {
@@ -30,18 +29,18 @@ try {
   const keys = await new NodeZkConfigProvider(managedDirectory).getVerifierKeys(circuits);
   verifyContractState(keys, deployedState);
   const transaction = await provider.watchForDeployTxData(receipt.contractAddress);
-  if (transaction.status !== SucceedEntirely || transaction.txId !== receipt.txId || String(transaction.blockHeight) !== String(receipt.blockHeight)) {
-    throw new Error('On-chain deployment finality does not match the receipt.');
-  }
+  verifyReceiptTransaction(receipt, transaction);
   const verification = {
     network: config.network, contractAddress: receipt.contractAddress,
-    txId: transaction.txId, txHash: transaction.txHash, blockHeight: String(transaction.blockHeight),
+    txId: receipt.txId, deployTxId: transaction.txId, identifiers: transaction.identifiers,
+    txHash: transaction.txHash, blockHeight: String(transaction.blockHeight),
     blockHash: transaction.blockHash, sourceHash, verifiedCircuits: circuits, verifiedAt: new Date().toISOString(),
   };
   await writeFile(new URL(`../deployments/${config.network}.verification.json`, import.meta.url), JSON.stringify(verification, null, 2) + '\n');
   console.log(JSON.stringify(verification, null, 2));
   console.log('PASS: public deployment receipt and all compiled circuit verifier keys match the chain.');
-} catch {
-  console.error('Deployment verification failed. Check the receipt, compiled artifacts and public indexer.');
+} catch (error) {
+  // This verifier reads public receipts and chain data only, never private SDK results.
+  console.error(`Deployment verification failed: ${error instanceof Error ? error.message : 'Unknown public-indexer error.'}`);
   process.exitCode = 1;
 } finally { clearTimeout(deadline); }

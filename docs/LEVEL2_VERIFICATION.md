@@ -47,12 +47,15 @@ documented separately in `proof-current.txt`.
 - A real installed wallet connecting, approving fees and submitting a transaction.
 - Browser proof generation through the local server, including hosted-origin
   local-network permission/CORS behavior.
-- A finalized deployment and successful circuit call on Preview or Preprod.
+- A successful browser wallet circuit call on Preview or Preprod.
 - A deployed Level 2 frontend URL and real-wallet demonstration video.
 
-The user deferred faucet funding. A new test-only SDK wallet was prepared in the
-ignored `.env`; no secret was published. Vercel CLI was logged out, so this work
-adds hosting configuration/instructions without claiming deployment.
+Funding was initially deferred. On September 23, 2026, the SDK wallet was funded,
+DUST was registered, and the Level 1 contract finalized on Preprod. Its public
+[deployment receipt](../deployments/preprod.json) and
+[verification receipt](../deployments/preprod.verification.json) are retained.
+The wallet's `.env` and encrypted local state remain ignored; no secret was
+published. Public frontend hosting and its browser wallet demonstration remain pending.
 
 The production site lazily loads the SDK. Vite reports a large SDK chunk; the
 ledger/runtime WASM assets total roughly 11 MB before compression. Expect a

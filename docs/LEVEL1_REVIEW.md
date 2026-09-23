@@ -17,12 +17,14 @@ tests, deployment script, frontend and submission documentation.
 | No actual proof-generation evidence | Generate a real `verify_credential` proof through the local 8.1.0 proof server |
 | README and UI asserted nonexistent on-chain success and hidden public metadata | Remove fabricated address, explain disclosed state, label frontend simulation and correct readiness checklist |
 
-## Outstanding Level 1 submission work
+## Level 1 deployment completion
 
-1. Supply a locally configured, funded Preview/Preprod test wallet. No wallet
-   seed or funded configuration was available during this work.
-2. Run deployment, retain its finalized receipt and verify its transaction/address
-   independently on the selected network. Update the README only with that evidence.
+The original funding and deployment gaps were completed on September 23, 2026.
+The funded SDK wallet registered DUST, and ZeroPass finalized on Preprod at block
+2,673,631. The [receipt](../deployments/preprod.json) records the contract address;
+[public verification](../deployments/preprod.verification.json) confirms its
+transaction and all four compiled verifier keys against the chain. The README
+now includes the confirmed address. Wallet seeds and local state remain private.
 
 Current compilation evidence is in [compile-current.txt](compile-current.txt)
 and [compile-current.png](compile-current.png). The screenshot renders captured
@@ -33,8 +35,8 @@ instead of the original compiler 0.34 screenshot.
 ## Product work beyond the Level 1 core
 
 This list records the original audit. Level 2 subsequently implements the wallet,
-vault and institution UI; see [LEVEL2.md](LEVEL2.md) for current status. Network
-deployment and real-wallet verification remain pending.
+vault and institution UI; see [LEVEL2.md](LEVEL2.md) for current status. The contract
+is deployed; browser wallet verification and public frontend publication remain pending.
 
 - Connect the frontend to a real Midnight wallet and providers, with transaction
   pending/failure/finality states and local credential persistence/recovery.

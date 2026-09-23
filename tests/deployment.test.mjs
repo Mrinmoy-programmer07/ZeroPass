@@ -11,7 +11,7 @@ import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config
 import { ledger, pureCircuits } from '../contract/managed/contract/index.js';
 import { networkConfig, deploymentSecrets } from '../scripts/lib/config.mjs';
 import { deriveWalletKeys, walletProviderFor, registerDustForState, syncedState, waitForDust } from '../scripts/lib/wallet.mjs';
-import { createProviders, deployOptions, deploymentReceipt, managedDirectory } from '../scripts/lib/deployment.mjs';
+import { createProviders, deployOptions, deploymentReceipt, managedDirectory, verifyReceiptTransaction } from '../scripts/lib/deployment.mjs';
 import { walletCache } from '../scripts/lib/wallet-cache.mjs';
 
 const seed = new Uint8Array(32).fill(7); // Deterministic, unfunded test fixture only.
@@ -145,5 +145,15 @@ describe('Deployment wiring (offline)', () => {
     assert.equal(JSON.stringify(receipt).includes('must-not-leak'), false);
     assert.equal('private' in receipt, false);
     assert.throws(() => deploymentReceipt({ deployTxData: { public: {} } }, 'preprod', 'hash'), /finalized/);
+  });
+
+  it('correlates different intent IDs within one successful deployment transaction', () => {
+    const receipt = { txId: 'submitted-intent', blockHeight: '42' };
+    const transaction = { status: 'SucceedEntirely', txId: 'deploy-intent', identifiers: ['submitted-intent', 'deploy-intent'], blockHeight: 42 };
+    assert.doesNotThrow(() => verifyReceiptTransaction(receipt, transaction));
+    assert.throws(() => verifyReceiptTransaction({ ...receipt, txId: 'unrelated-intent' }, transaction), /finality/);
+    assert.throws(() => verifyReceiptTransaction(receipt, { ...transaction, status: 'FailFallible' }), /finality/);
+    assert.throws(() => verifyReceiptTransaction(receipt, { ...transaction, blockHeight: 43 }), /finality/);
+    assert.throws(() => verifyReceiptTransaction(receipt, { ...transaction, identifiers: ['submitted-intent'] }), /finality/);
   });
 });

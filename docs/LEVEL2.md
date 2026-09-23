@@ -1,8 +1,10 @@
 # Level 2 usage and submission
 
-The frontend now calls the real Midnight SDK. Network completion remains blocked
-on a funded wallet and the Level 1 deployment receipt. It does not manufacture a
-contract address, credential issuance or success result.
+The frontend calls the real Midnight SDK. The Level 1 contract is deployed and
+verified on Preprod; its confirmed address is in the root README and
+`frontend/.env.example`. Browser wallet circuit calls and public frontend
+publication still need verification. Credential issuance and success results
+come from actual transactions.
 
 ## Local setup
 

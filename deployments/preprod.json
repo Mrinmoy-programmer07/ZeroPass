@@ -1,0 +1,9 @@
+{
+  "network": "preprod",
+  "contractAddress": "08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a",
+  "txId": "0088a26d5cb4290372c1957f47f5b9534ef35e2c377a1137bedff05a4ab5363546",
+  "blockHeight": "2673631",
+  "sourceHash": "a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5",
+  "compiler": "0.31.1",
+  "deployedAt": "2026-09-23T10:31:13.308Z"
+}

@@ -8,10 +8,11 @@ holder proves possession while the contract checks its type and revocation state
 The product idea is reusable membership or qualification verification with less
 disclosure than handing each service a copy of the underlying document.
 
-**Current status:** the Level 1 contract and local proof checks pass. Level 2 now
-contains real Midnight wallet, encrypted credential and circuit-submission code.
-There is **no confirmed Preview/Preprod deployment receipt**; funding and the
-real-wallet network demonstration remain pending. The old simulation is removed.
+**Current status:** the Level 1 contract is deployed on **Preprod**, finalized at
+block **2,673,631** on September 23, 2026. Its public receipt and all four circuit
+verifier keys have been checked against the chain. Level 2 contains real Midnight
+wallet, encrypted credential and circuit-submission code; the browser wallet
+demonstration and public frontend release remain pending.
 
 ## Level 1 — Contract foundation
 
@@ -21,11 +22,11 @@ real-wallet network demonstration remain pending. The old simulation is removed.
 | --- | --- |
 | Own Compact contract | [contract/zeropass.compact](contract/zeropass.compact) |
 | Successful compilation | Pinned compiler 0.31.1; four circuits and generated proof assets; [current output](docs/compile-current.txt) |
-| At least three meaningful passing tests | 30 tests; `npm run validate` |
+| At least three meaningful passing tests | 31 tests; `npm run validate` |
 | Public/private state explanation | Table below and inline contract comments |
 | Product idea and reproducible setup | This README and linked guides |
 | Meaningful Git history | Five focused repair commits, following the original project history |
-| Actual Preview or Preprod deployment | **Pending funded test wallet, finalization and public receipt** |
+| Actual Preview or Preprod deployment | **Confirmed on Preprod**, block 2,673,631; [receipt](deployments/preprod.json) and [on-chain verification](deployments/preprod.verification.json) |
 
 See [the gap analysis](docs/LEVEL1_REVIEW.md) for the original problems, fixes and
 remaining work. Current command evidence is documented in [TESTING.md](docs/TESTING.md).
@@ -117,8 +118,16 @@ the actual generated contract and saves only finalized public evidence to
 
 | Network | Confirmed address |
 | --- | --- |
-| Preprod | Pending |
+| Preprod | `08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a` |
 | Preview | Pending |
+
+Preprod transaction hash:
+`513d5894017031af71422f8f4352695067e6cd1e38e0b4d827a8723e889668f3`.
+Look up the address or transaction in the [Preprod explorer](https://preprod.midnightexplorer.com/).
+The [deployment receipt](deployments/preprod.json) records the submitted intent ID;
+the [verification receipt](deployments/preprod.verification.json) also records the
+deployment intent ID, transaction hash and block hash. Re-check the public evidence
+with `npm run deploy:verify`; this does not submit a transaction.
 
 ## Level 2 — Frontend integration
 
@@ -136,13 +145,13 @@ The UI uses the actual SDK and compiled artifacts, with no simulation fallback.
 | --- | --- |
 | Wallet connect/disconnect and address display | Implemented with Midnight connector API 4; isolated connector/UI tests |
 | Missing wallet, rejected request and wrong network | Handled and tested |
-| Frontend regression suite | 19 passing tests in addition to Level 1's 30 tests |
+| Frontend regression suite | 19 passing tests in addition to Level 1's 31 tests |
 | Circuit building, local proving, wallet approval and submission | Implemented with the real SDK; real-wallet network run pending |
 | Private holder inputs kept off-screen | Randomly generated; encrypted at rest; only public request fields displayed |
 | Transaction result and loading states | Explicit build/prove/approval/submit/pending/finalized/failed/unknown states |
 | Privacy claim | Documented below; commitments and metadata remain public |
-| Deployed contract address | Pending Level 1 funding and finalization |
-| Live Level 2 URL and demo video | Pending deployment and a real-wallet recording |
+| Deployed contract address | Confirmed Preprod address above; included in `frontend/.env.example` |
+| Live Level 2 URL and demo video | Pending frontend publication and a real-wallet recording |
 
 ### Privacy claim
 

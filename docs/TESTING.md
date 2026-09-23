@@ -14,12 +14,14 @@ raw holder/admin/issuer secrets and salt. It also confirms those values occurred
 in the private witness transcript, and that public commitments and issuer IDs
 remain observable. It is a regression check, not a cryptographic privacy audit.
 
-There are 18 generated-circuit regressions and 12 offline deployment tests.
+There are 18 generated-circuit regressions and 13 offline deployment tests.
 The latter build an actual SDK deployment transaction, read all four circuit
 assets, restore a deterministic test wallet, and persist/reload encrypted private
 state through the real provider. No test uses production wallet secrets.
 Deployment coverage also checks synchronization/DUST gating, skipping existing
 DUST registrations, and encrypted checkpoint restoration and tamper rejection.
+It also accepts different intent IDs within one successful deployment transaction
+while rejecting unrelated IDs, failed transactions and mismatched blocks.
 
 `npm run validate` exercises circuit execution and assertions locally. It does
 not generate SNARKs or prove that a transaction finalized on Preview/Preprod.
@@ -44,3 +46,13 @@ The 2026-09-21 verification run used the source hash recorded in each log:
 - [Frontend checks](FRONTEND_VERIFICATION.md): build, lint and browser walkthrough passed.
 
 These files are a point-in-time record. Re-run the commands after changing source.
+
+## Preprod deployment verification — September 23, 2026
+
+The funded SDK wallet registered DUST and deployed the contract at block 2,673,631.
+`npm run deploy:verify` independently re-read the public deployment data, matched
+the recorded transaction IDs and block height, and compared all four on-chain
+verifier keys with the local artifacts. See [the deployment receipt](../deployments/preprod.json)
+and [verification receipt](../deployments/preprod.verification.json).
+The current offline suite has 31 passing tests. A browser wallet circuit-call
+demonstration remains separate Level 2 work.

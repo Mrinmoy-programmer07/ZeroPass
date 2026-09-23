@@ -7,6 +7,7 @@ import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { walletProviderFor } from './wallet.mjs';
+import { SucceedEntirely } from '@midnight-ntwrk/midnight-js-types';
 
 export const managedDirectory = fileURLToPath(new URL('../../contract/managed/', import.meta.url));
 export const compiledContract = CompiledContract.withCompiledFileAssets(
@@ -46,4 +47,14 @@ export function deploymentReceipt(result, network, sourceHash) {
     network, contractAddress, txId, blockHeight: String(blockHeight),
     sourceHash, compiler: '0.31.1', deployedAt: new Date().toISOString(),
   };
+}
+
+export function verifyReceiptTransaction(receipt, transaction) {
+  // Balancing adds another intent. The submitted ID and the deployment action's
+  // ID may differ, but both must belong to the same successful transaction.
+  if (transaction.status !== SucceedEntirely || !transaction.identifiers?.includes(receipt.txId)
+      || !transaction.identifiers.includes(transaction.txId)
+      || String(transaction.blockHeight) !== String(receipt.blockHeight)) {
+    throw new Error('On-chain deployment finality does not match the receipt.');
+  }
 }

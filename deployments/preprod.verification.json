@@ -1,0 +1,21 @@
+{
+  "network": "preprod",
+  "contractAddress": "08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a",
+  "txId": "0088a26d5cb4290372c1957f47f5b9534ef35e2c377a1137bedff05a4ab5363546",
+  "deployTxId": "006353b0dc33e28a56112a87326a665628a40d60333b65ddc0769c4d6cbac33b32",
+  "identifiers": [
+    "006353b0dc33e28a56112a87326a665628a40d60333b65ddc0769c4d6cbac33b32",
+    "0088a26d5cb4290372c1957f47f5b9534ef35e2c377a1137bedff05a4ab5363546"
+  ],
+  "txHash": "513d5894017031af71422f8f4352695067e6cd1e38e0b4d827a8723e889668f3",
+  "blockHeight": "2673631",
+  "blockHash": "4118f01eb4da79d9272768389301a420f8b9c72fa765ff8c0ef995bde81af242",
+  "sourceHash": "a66d1269978d9a322e5cd34d3180c35c884609eaff2a9d94e4ead6c095fdc2c5",
+  "verifiedCircuits": [
+    "register_issuer",
+    "issue_credential",
+    "verify_credential",
+    "revoke_credential"
+  ],
+  "verifiedAt": "2026-09-23T10:42:39.637Z"
+}

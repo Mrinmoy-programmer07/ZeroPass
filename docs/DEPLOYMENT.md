@@ -1,8 +1,13 @@
 # Deploy ZeroPass to a test network
 
-No finalized network deployment has been established by this work. A local proof
-is not a deployment receipt. The deployment command uses the generated contract,
-all six SDK providers, an encrypted private-state database and a funded wallet.
+ZeroPass was finalized on Preprod at block **2,673,631** on September 23, 2026:
+`08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a`.
+See the [deployment receipt](../deployments/preprod.json) and
+[public verification](../deployments/preprod.verification.json). All four deployed
+circuit verifier keys match the compiled artifacts. The deployment command uses
+the generated contract, all six SDK providers, an encrypted private-state database
+and a funded wallet. The steps below reproduce that workflow with your own wallet;
+the saved receipt prevents accidentally deploying another instance.
 
 ## Prepare
 
@@ -100,6 +105,9 @@ npm run deploy:verify
 This submits no transaction. It checks the source hash, finalized transaction ID
 and block height, and all four on-chain circuit verifier keys against the local
 compiled keys. A successful check writes `deployments/<network>.verification.json`.
+Balancing can add an intent, so the submitted ID and deployment action's ID may
+differ. Verification requires both to belong to the same entirely successful
+transaction at the recorded block; the verification receipt retains both IDs.
 
 The local encrypted database is under `.zeropass/<network>/`. SDK exceptions are
 not dumped because they may contain private transaction data. A stage-specific
