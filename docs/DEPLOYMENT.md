@@ -31,6 +31,11 @@ your existing SDK wallet seed (32 bytes in hexadecimal), a fresh 32-byte admin
 secret, and a strong private-state password. A mnemonic or wallet extension
 connection is not a substitute for this SDK seed format.
 
+Fund the address printed by `npm run wallet -- address`. A different address in
+your browser wallet does not fund the SDK deployment wallet. Send test tNIGHT to
+the printed address or request faucet tokens directly for it; never send a seed
+or private key to someone helping you deploy.
+
 Never commit or share `.env` or `.zeropass`. Back up both privately: losing the
 admin secret prevents future issuer registration. On Windows, check that your
 user account alone can read the file; POSIX mode flags do not set Windows ACLs.
@@ -57,6 +62,23 @@ npm run deploy -- --check
 npm run deploy
 ```
 
+For a funded wallet that has not yet registered DUST, use this instead of running
+registration and deployment as separate processes:
+
+```sh
+npm run deploy -- --register-dust
+```
+
+This keeps one wallet session open through synchronization, registration, DUST
+accrual and deployment. It skips already registered coins and waits for at least
+0.5 DUST; the SDK still checks the actual fee when balancing the deployment.
+Large Preprod histories can take tens of minutes to replay on the first run.
+Public sync cursors show progress for each sub-wallet. Encrypted checkpoints in
+`.zeropass/<network>/wallet-*.json` let subsequent commands resume replay. The
+cache is bound to the wallet, network and SDK version, authenticated with AES-GCM,
+and encrypted using a separate key derived from the local wallet seed. A checkpoint
+is saved once a minute and on normal shutdown. Keep it private along with `.env`.
+
 `--check` validates local configuration and artifacts only; it does not test
 funding or connectivity. Deployment checks proof-server health/version, waits
 for wallet synchronization, checks DUST, and submits the actual SDK transaction.
@@ -68,6 +90,16 @@ block height, source hash, compiler version and timestamp. It refuses to replace
 an existing receipt. Verify the address and transaction in the network explorer
 before claiming Level 1 deployment completion. If execution is interrupted after
 submission, inspect the public network/wallet history before trying again.
+
+Independently re-read public deployment data with:
+
+```sh
+npm run deploy:verify
+```
+
+This submits no transaction. It checks the source hash, finalized transaction ID
+and block height, and all four on-chain circuit verifier keys against the local
+compiled keys. A successful check writes `deployments/<network>.verification.json`.
 
 The local encrypted database is under `.zeropass/<network>/`. SDK exceptions are
 not dumped because they may contain private transaction data. A stage-specific

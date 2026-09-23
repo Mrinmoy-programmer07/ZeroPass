@@ -3,7 +3,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { networkConfig, deploymentSecrets, ConfigurationError } from './lib/config.mjs';
-import { startWallet, syncedState } from './lib/wallet.mjs';
+import { startWallet, syncedState, registerDustForState, waitForDust } from './lib/wallet.mjs';
+import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import { createProviders, deployOptions, deploymentReceipt } from './lib/deployment.mjs';
 
 let stage = 'configuration';
@@ -34,7 +35,20 @@ try {
     console.log(`Network: ${config.network}`);
     console.log(`Wallet: ${walletContext.unshieldedKeystore.getBech32Address()}`);
     heartbeat = setInterval(() => console.log(`Waiting: ${stage}...`), 20_000);
-    const state = await syncedState(walletContext.wallet);
+    let state = await syncedState(walletContext.wallet);
+    await walletContext.checkpoint();
+    console.log(`tNIGHT (smallest units): ${state.unshielded.balances[unshieldedToken().raw] ?? 0n}`);
+    if (process.argv.includes('--register-dust')) {
+      if ((state.unshielded.balances[unshieldedToken().raw] ?? 0n) === 0n && state.dust.balance(new Date()) === 0n) {
+        throw new ConfigurationError('Fund the configured deployment wallet with test tNIGHT first.');
+      }
+      stage = 'DUST registration';
+      const txId = await registerDustForState(walletContext, state, config.network);
+      if (txId) console.log(`DUST registration transaction: ${txId}`);
+      stage = 'DUST accrual (at least 0.5 DUST; final fee checked during balancing)';
+      state = await waitForDust(walletContext.wallet);
+    }
+    console.log(`DUST (smallest units): ${state.dust.balance(new Date())}`);
     if (state.dust.balance(new Date()) <= 0n) {
       throw new ConfigurationError('Wallet has no DUST. Fund its tNIGHT address, then run npm run wallet -- register-dust.');
     }
@@ -57,5 +71,5 @@ try {
   process.exitCode = 1;
 } finally {
   clearInterval(heartbeat);
-  if (walletContext) await walletContext.wallet.stop();
+  if (walletContext) await walletContext.stop();
 }

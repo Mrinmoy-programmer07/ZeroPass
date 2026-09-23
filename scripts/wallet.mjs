@@ -1,7 +1,6 @@
 import { networkConfig, secretBytes, ConfigurationError } from './lib/config.mjs';
-import { deriveWalletKeys, startWallet, syncedState } from './lib/wallet.mjs';
+import { deriveWalletKeys, startWallet, syncedState, registerDustForState } from './lib/wallet.mjs';
 import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
-import { DustAddress, MidnightBech32m } from '@midnightntwrk/wallet-sdk';
 
 let ctx;
 let heartbeat;
@@ -22,16 +21,11 @@ try {
     console.log(`tNIGHT (smallest units): ${state.unshielded.balances[unshieldedToken().raw] ?? 0n}`);
     console.log(`DUST (smallest units): ${state.dust.balance(new Date())}`);
     if (action === 'register-dust') {
-      const coins = state.unshielded.availableCoins.filter(c => c.meta?.registeredForDustGeneration !== true);
-      if (coins.length === 0) {
+      const txId = await registerDustForState(ctx, state, config.network);
+      if (!txId) {
         console.log('No unregistered coins. Fund the wallet or wait for already registered NIGHT to generate DUST.');
       } else {
-        const receiver = MidnightBech32m.parse(String(DustAddress.encodePublicKey(config.network, state.dust.publicKey)))
-          .decode(DustAddress, config.network);
-        const recipe = await ctx.wallet.registerNightUtxosForDustGeneration(coins,
-          ctx.unshieldedKeystore.getPublicKey(), payload => ctx.unshieldedKeystore.signData(payload), receiver);
-        const tx = await ctx.wallet.finalizeRecipe(recipe);
-        console.log(`Registration transaction: ${await ctx.wallet.submitTransaction(tx)}`);
+        console.log(`Registration transaction: ${txId}`);
         console.log('Allow DUST to accrue, then run npm run wallet -- status.');
       }
     }
@@ -41,5 +35,5 @@ try {
   process.exitCode = 1;
 } finally {
   clearInterval(heartbeat);
-  if (ctx) await ctx.wallet.stop();
+  if (ctx) await ctx.stop();
 }

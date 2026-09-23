@@ -1,16 +1,18 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { of, Subject } from 'rxjs';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import { createUnprovenDeployTx } from '@midnight-ntwrk/midnight-js-contracts';
 import { sampleSigningKey, sampleContractAddress } from '@midnight-ntwrk/compact-runtime';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { ledger, pureCircuits } from '../contract/managed/contract/index.js';
 import { networkConfig, deploymentSecrets } from '../scripts/lib/config.mjs';
-import { deriveWalletKeys, walletProviderFor } from '../scripts/lib/wallet.mjs';
+import { deriveWalletKeys, walletProviderFor, registerDustForState, syncedState, waitForDust } from '../scripts/lib/wallet.mjs';
 import { createProviders, deployOptions, deploymentReceipt, managedDirectory } from '../scripts/lib/deployment.mjs';
+import { walletCache } from '../scripts/lib/wallet-cache.mjs';
 
 const seed = new Uint8Array(32).fill(7); // Deterministic, unfunded test fixture only.
 const adminSecret = new Uint8Array(32).fill(9);
@@ -34,6 +36,65 @@ describe('Deployment wiring (offline)', () => {
     const second = deriveWalletKeys(seed, 'preprod');
     assert.equal(String(first.unshieldedKeystore.getBech32Address()), String(second.unshieldedKeystore.getBech32Address()));
     assert.match(String(first.unshieldedKeystore.getBech32Address()), /^mn_addr_preprod1/);
+  });
+
+  it('does not submit another registration when every NIGHT coin is registered', async () => {
+    const state = { unshielded: { availableCoins: [{ meta: { registeredForDustGeneration: true } }] } };
+    assert.equal(await registerDustForState({}, state, 'preprod'), undefined);
+  });
+
+  it('waits for every sub-wallet to synchronize and times out if progress remains incomplete', async () => {
+    const progress = { isConnected: true, appliedIndex: 1n, highestRelevantWalletIndex: 2n };
+    const pending = { isSynced: false, shielded: { progress }, unshielded: { progress }, dust: { progress } };
+    const updates = new Subject();
+    const result = syncedState({ state: () => updates }, 1000);
+    updates.next(pending);
+    const complete = { ...pending, isSynced: true };
+    updates.next(complete);
+    assert.equal(await result, complete);
+    const stalled = new Subject();
+    const timedOut = syncedState({ state: () => stalled }, 20);
+    stalled.next(pending);
+    await assert.rejects(timedOut, /Timeout/);
+    stalled.complete();
+  });
+
+  it('requires both synchronized state and sufficient DUST before deployment', async () => {
+    const funded = { isSynced: true, dust: { balance: () => 500_000_000_000_000n } };
+    assert.equal(await waitForDust({ state: () => of(funded) }), funded);
+    await assert.rejects(waitForDust({ state: () => of({ ...funded, isSynced: false }) }, 1n, 20), /Timeout/);
+    await assert.rejects(waitForDust({ state: () => of(funded) }, 600_000_000_000_000n, 20), /Timeout/);
+  });
+
+  it('restores encrypted wallet checkpoints without exposing serialized private state', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'zeropass-cache-test-'));
+    try {
+      const cache = walletCache(seed, 'preprod', 'test-wallet', directory);
+      assert.equal(await cache.load(), undefined);
+      const state = { shielded: 'private-shielded-state', unshielded: 'wallet-history', dust: 'private-dust-state' };
+      await cache.save(state);
+      assert.deepEqual(await cache.load(), state);
+      const path = join(directory, 'preprod', (await readdir(join(directory, 'preprod')))[0]);
+      const first = await readFile(path, 'utf8');
+      assert.equal(first.includes(state.shielded), false);
+      await cache.save(state);
+      assert.notEqual(await readFile(path, 'utf8'), first);
+      await assert.rejects(walletCache(new Uint8Array(32).fill(8), 'preprod', 'test-wallet', directory).load(), /authenticate/);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+
+  it('rejects tampered checkpoints instead of restoring unauthenticated wallet state', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'zeropass-cache-test-'));
+    try {
+      const cache = walletCache(seed, 'preprod', 'test-wallet', directory);
+      await cache.save({ shielded: 'one', unshielded: 'two', dust: 'three' });
+      const path = join(directory, 'preprod', (await readdir(join(directory, 'preprod')))[0]);
+      const data = JSON.parse(await readFile(path, 'utf8'));
+      const bytes = Buffer.from(data.ciphertext, 'base64');
+      bytes[0] ^= 1;
+      await writeFile(path, JSON.stringify({ ...data, ciphertext: bytes.toString('base64') }));
+      await assert.rejects(cache.load(), /authenticate/);
+    } finally { await rm(directory, { recursive: true, force: true }); }
   });
 
   it('builds a real SDK deployment transaction using compiled artifacts and the hashed administrator', async () => {

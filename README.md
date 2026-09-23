@@ -21,7 +21,7 @@ real-wallet network demonstration remain pending. The old simulation is removed.
 | --- | --- |
 | Own Compact contract | [contract/zeropass.compact](contract/zeropass.compact) |
 | Successful compilation | Pinned compiler 0.31.1; four circuits and generated proof assets; [current output](docs/compile-current.txt) |
-| At least three meaningful passing tests | 25 tests; `npm run validate` |
+| At least three meaningful passing tests | 30 tests; `npm run validate` |
 | Public/private state explanation | Table below and inline contract comments |
 | Product idea and reproducible setup | This README and linked guides |
 | Meaningful Git history | Five focused repair commits, following the original project history |
@@ -136,7 +136,7 @@ The UI uses the actual SDK and compiled artifacts, with no simulation fallback.
 | --- | --- |
 | Wallet connect/disconnect and address display | Implemented with Midnight connector API 4; isolated connector/UI tests |
 | Missing wallet, rejected request and wrong network | Handled and tested |
-| Frontend regression suite | 19 passing tests in addition to Level 1's 25 tests |
+| Frontend regression suite | 19 passing tests in addition to Level 1's 30 tests |
 | Circuit building, local proving, wallet approval and submission | Implemented with the real SDK; real-wallet network run pending |
 | Private holder inputs kept off-screen | Randomly generated; encrypted at rest; only public request fields displayed |
 | Transaction result and loading states | Explicit build/prove/approval/submit/pending/finalized/failed/unknown states |

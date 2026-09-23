@@ -14,10 +14,12 @@ raw holder/admin/issuer secrets and salt. It also confirms those values occurred
 in the private witness transcript, and that public commitments and issuer IDs
 remain observable. It is a regression check, not a cryptographic privacy audit.
 
-There are 18 generated-circuit regressions and seven offline deployment tests.
+There are 18 generated-circuit regressions and 12 offline deployment tests.
 The latter build an actual SDK deployment transaction, read all four circuit
 assets, restore a deterministic test wallet, and persist/reload encrypted private
 state through the real provider. No test uses production wallet secrets.
+Deployment coverage also checks synchronization/DUST gating, skipping existing
+DUST registrations, and encrypted checkpoint restoration and tamper rejection.
 
 `npm run validate` exercises circuit execution and assertions locally. It does
 not generate SNARKs or prove that a transaction finalized on Preview/Preprod.

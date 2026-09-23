@@ -16,6 +16,7 @@
     "wallet": "node --env-file-if-exists=.env scripts/wallet.mjs",
     "prove:local": "node scripts/prove-local.mjs",
     "deploy": "node --env-file-if-exists=.env scripts/deploy.mjs",
+    "deploy:verify": "node --env-file-if-exists=.env scripts/verify-deployment.mjs",
     "proof-server": "node scripts/proof-server.mjs"
   },
   "dependencies": {
