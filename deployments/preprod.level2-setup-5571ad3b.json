@@ -1,0 +1,18 @@
+{
+  "network": "preprod",
+  "contractAddress": "08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a",
+  "commitment": "5571ad3b4cef80d4ac72485c3d7980846ff3ff53ea48d5d540d01c29a7a2d24c",
+  "credentialType": "4d454d4245525348495000000000000000000000000000000000000000000000",
+  "issuerId": "80241eb1809003e6e80647df6b1f13f24cb43adb477bdad2337d5d2a0b5bde69",
+  "transactions": [
+    {
+      "circuit": "issue_credential",
+      "txId": "008f87f4f4366114e46beb4878d03b9435e173679a55cb1cfdf945ebc17020404d",
+      "status": "SucceedEntirely",
+      "txHash": "3d14407df01957dffabfb5657fc254994bfeee8ff549e239fd0cc57e2b741722",
+      "blockHeight": "2692108",
+      "blockHash": "20b2e49c050efb89f093f6fb29ea7bff0144ebb04a67a71a31188d1594c2c19a"
+    }
+  ],
+  "verifiedAt": "2026-09-24T17:18:58.084Z"
+}

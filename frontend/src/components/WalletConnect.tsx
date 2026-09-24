@@ -4,6 +4,7 @@ import { safeError, target } from '../lib/core.ts';
 import type { Network, Target } from '../lib/core.ts';
 import type { Midnight } from '../hooks/useMidnight.ts';
 import preprodDeployment from '../../../deployments/preprod.json';
+import { checkLocalProver } from '../lib/prover.ts';
 
 const initialNetwork: Network = import.meta.env.VITE_MIDNIGHT_NETWORK === 'preview' ? 'preview' : 'preprod';
 const addressFor = (network: Network) => (network === initialNetwork ? import.meta.env.VITE_CONTRACT_ADDRESS : '') || (network === 'preprod' ? preprodDeployment.contractAddress : '');
@@ -14,6 +15,7 @@ export function WalletConnect({ midnight, config, onConfigure }: { midnight: Mid
   const [wallets, setWallets] = useState<WalletChoice[]>([]);
   const [selected, setSelected] = useState('');
   const [error, setError] = useState('');
+  const [proverNotice, setProverNotice] = useState('');
   const scan = () => {
     try {
       setError('');
@@ -44,6 +46,8 @@ export function WalletConnect({ midnight, config, onConfigure }: { midnight: Mid
       <p className="hint">Disconnect clears this app’s session. Revoke its permissions separately in your wallet if needed.</p>
     </>}
     <p className="hint">Credential proofs use your local server at http://127.0.0.1:6300. Start it with npm run proof-server and allow local-network access if your browser asks.</p>
+    <button className="secondary" disabled={midnight.busy} onClick={() => void midnight.run(async () => { setProverNotice(''); await checkLocalProver(); setProverNotice('Local proof server 8.1.0 is reachable. No credential inputs were sent by this check.'); })}>Check local proof server</button>
+    {proverNotice && <p role="status" className="hint">{proverNotice}</p>}
     {error && <p role="alert" className="error">{error}</p>}
   </section>;
 }

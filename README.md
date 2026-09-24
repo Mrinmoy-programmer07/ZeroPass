@@ -11,8 +11,10 @@ disclosure than handing each service a copy of the underlying document.
 **Current status:** the Level 1 contract is deployed on **Preprod**, finalized at
 block **2,673,631** on September 23, 2026. Its public receipt and all four circuit
 verifier keys have been checked against the chain. Level 2 contains real Midnight
-wallet, encrypted credential and circuit-submission code; the browser wallet
-demonstration and public frontend release remain pending.
+wallet, encrypted credential and circuit-submission code. The frontend is live at
+[zero-pass-zvhh.vercel.app](https://zero-pass-zvhh.vercel.app); real local browser
+proving and test credential issuance are verified. The complete browser-wallet
+verification transaction and demonstration video remain pending.
 
 ## Level 1 — Contract foundation
 
@@ -145,13 +147,15 @@ The UI uses the actual SDK and compiled artifacts, with no simulation fallback.
 | --- | --- |
 | Wallet connect/disconnect and address display | Implemented with Midnight connector API 4; isolated connector/UI tests |
 | Missing wallet, rejected request and wrong network | Handled and tested |
-| Frontend regression suite | 19 passing tests in addition to Level 1's 31 tests |
-| Circuit building, local proving, wallet approval and submission | Implemented with the real SDK; real-wallet network run pending |
+| Frontend regression suite | 22 passing tests in addition to Level 1's 31 tests |
+| Circuit building and local proving | Real browser WASM transaction and local-server proof passed |
+| Wallet approval and submission | Real-wallet verification transaction pending |
 | Private holder inputs kept off-screen | Randomly generated; encrypted at rest; only public request fields displayed |
 | Transaction result and loading states | Explicit build/prove/approval/submit/pending/finalized/failed/unknown states |
 | Privacy claim | Documented below; commitments and metadata remain public |
-| Deployed contract address | Confirmed Preprod address above; included in `frontend/.env.example` |
-| Live Level 2 URL and demo video | Pending frontend publication and a real-wallet recording |
+| Deployed contract address | Confirmed Preprod address above; prefilled from its deployment receipt |
+| Live Level 2 URL | [zero-pass-zvhh.vercel.app](https://zero-pass-zvhh.vercel.app); published and rendered in a browser |
+| Demo video | Real-wallet recording pending |
 
 ### Privacy claim
 
@@ -199,13 +203,24 @@ Never put wallet seeds, holder secrets, salts or admin/issuer secrets in `VITE_*
 
 See [LEVEL2.md](docs/LEVEL2.md) for deployment, recovery, limitations and the demo
 recording checklist. See [LEVEL2_VERIFICATION.md](docs/LEVEL2_VERIFICATION.md) for
-what was tested and what still needs a funded wallet.
+what was tested and what still needs a real browser-wallet transaction.
 
 ### Live demo and demo video
 
-The Level 2 release is not yet deployed or verified at a public URL. The historical
-`zero-pass-zvhh.vercel.app` deployment and [legacy video](docs/demo_video.mp4) are
-not evidence of this implementation or a successful on-chain call.
+The current Level 2 frontend is published at
+[zero-pass-zvhh.vercel.app](https://zero-pass-zvhh.vercel.app), configured for the
+confirmed Preprod contract. All twelve hosted proof assets match the compiled
+contract byte-for-byte. Keep the local proof server running and grant the site
+local-network access when your browser requests it.
+Use **Check local proof server** before connecting or submitting. In Brave,
+grant this site localhost access at `brave://settings/content/localhostAccess`;
+this per-site permission lets the hosted app reach your local prover.
+
+The [test credential setup receipt](deployments/preprod.level2-setup.json) records
+successful administrator/issuer transactions at blocks 2,692,003 and 2,692,007.
+Those transactions used the SDK deployment wallet; they do not establish a
+successful holder verification through Lace. A new real-wallet video is still
+required. The [legacy simulated video](docs/demo_video.mp4) is historical only.
 
 The repository includes [vercel.json](vercel.json). Set the Vercel project's Root
 Directory to the **repository root**, then run these commands from that root:
@@ -218,8 +233,8 @@ npx vercel deploy
 npx vercel deploy --prod
 ```
 
-Publish the confirmed URL/address and record the real-wallet flow before marking
-Level 2 complete. The existing Git history already exceeds eight meaningful commits.
+Verify the hosted wallet flow and record it before marking Level 2 complete.
+The existing Git history already exceeds eight meaningful commits.
 
 ### Repository map
 

@@ -22,20 +22,24 @@ export async function confirmTransaction(txId: string, watch: TransactionSteps<u
 }
 export async function executeTransaction<U, P, T>(steps: TransactionSteps<U, P, T>, update: (value: Progress) => void, timeoutMs = 120_000): Promise<Progress> {
   let txId: string | undefined;
+  let stage: Phase = 'building';
   try {
     update({ phase: 'building', message: 'Checking the contract and preparing the circuit…' });
     const unproven = await steps.build();
+    stage = 'proving';
     update({ phase: 'proving', message: 'Generating a proof with your local proof server…' });
     const proven = await steps.prove(unproven);
+    stage = 'approval';
     update({ phase: 'approval', message: 'Review the transaction and test-network fee in your wallet.' });
     const balanced = await steps.balance(proven);
     txId = balanced.txId;
+    stage = 'submitting';
     // Retain the public ID before submission: even a transport error may follow acceptance.
     update({ phase: 'submitting', txId, message: 'Submitting the approved transaction…' });
     await steps.submit(balanced.transaction);
     return await confirmTransaction(txId, steps.watch, update, timeoutMs);
   } catch (error) {
-    const progress: Progress = { phase: txId ? 'unknown' : 'failed', txId, message: safeError(error) };
+    const progress: Progress = { phase: txId ? 'unknown' : 'failed', txId, message: `Stopped during ${stage}. ${safeError(error)}` };
     update(progress); return progress;
   }
 }

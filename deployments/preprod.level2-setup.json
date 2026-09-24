@@ -1,0 +1,26 @@
+{
+  "network": "preprod",
+  "contractAddress": "08e743143310064fa1f046077ff7057d78d6d2775265a2d7c789eef27a64d07a",
+  "commitment": "5a9d1cc653f92a54c7379d15230eb60cb5e57fd0f58101d53eb45ad2197fcaa9",
+  "credentialType": "4d454d4245525348495000000000000000000000000000000000000000000000",
+  "issuerId": "80241eb1809003e6e80647df6b1f13f24cb43adb477bdad2337d5d2a0b5bde69",
+  "transactions": [
+    {
+      "circuit": "register_issuer",
+      "txId": "0067ba198af33c2821658b3a6cb591f0d86ca405efd6f672b07b6624bfdec67e1b",
+      "status": "SucceedEntirely",
+      "txHash": "d7208901e3dc6da6db9906bc0fb1fbe6abbf2bfa3610cf474a9a3af1343e9486",
+      "blockHeight": "2692003",
+      "blockHash": "70878d9ed1e7fa33cc5de942d6a37a63039206574c179b5b2e7de95dba99f9eb"
+    },
+    {
+      "circuit": "issue_credential",
+      "txId": "00403bfcedcd8153fa3bae022937df8f17e0530db8089a8bb8df1b680f2682600f",
+      "status": "SucceedEntirely",
+      "txHash": "152e8126c5e92d17df7a50aacb5c93846cfd8a5feb99fa9886fdf9112c11dee7",
+      "blockHeight": "2692007",
+      "blockHash": "848641899c2bf1604bd695e0963537fa66a60948a27b65c824de8da843e81ce0"
+    }
+  ],
+  "verifiedAt": "2026-09-24T17:08:57.116Z"
+}

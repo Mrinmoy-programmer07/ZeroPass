@@ -1,0 +1,11 @@
+.env
+.env.*
+**/.env
+**/.env.*
+.zeropass/
+tmp/
+**/node_modules/
+frontend/dist/
+frontend/public/zeropass/
+zeropass_design.md
+docs/demo_video.mp4

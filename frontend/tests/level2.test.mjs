@@ -112,14 +112,17 @@ describe('Honest transaction lifecycle', () => {
     let submitted = false;
     const result = await executeTransaction(steps({ prove: async () => { throw new Error(credential.secret); }, submit: async () => { submitted = true; } }), () => {});
     assert.equal(result.phase, 'failed'); assert.equal(submitted, false); assert.ok(!result.message.includes(credential.secret));
+    assert.match(result.message, /Stopped during proving/);
   });
   it('handles wallet rejection without reporting a submitted transaction', async () => {
     const result = await executeTransaction(steps({ balance: async () => { throw { code: 'Rejected' }; } }), () => {});
     assert.equal(result.phase, 'failed'); assert.equal(result.txId, undefined);
+    assert.match(result.message, /Stopped during approval/);
   });
   it('retains an identifier on submission transport failure for later reconciliation', async () => {
     const result = await executeTransaction(steps({ submit: async () => { throw new Error('network timeout'); } }), () => {});
     assert.equal(result.phase, 'unknown'); assert.equal(result.txId, txId);
+    assert.match(result.message, /Stopped during submitting/);
   });
   it('never treats a failed fallible operation as verification success', async () => {
     const result = await executeTransaction(steps({ watch: async () => ({ ...success, status: 'FailFallible' }) }), () => {});

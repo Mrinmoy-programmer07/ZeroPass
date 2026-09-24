@@ -2,8 +2,9 @@
 
 The frontend calls the real Midnight SDK. The Level 1 contract is deployed and
 verified on Preprod; its confirmed address is in the root README and
-`frontend/.env.example`. Browser wallet circuit calls and public frontend
-publication still need verification. Credential issuance and success results
+`frontend/.env.example`. The frontend is published at
+https://zero-pass-zvhh.vercel.app. Browser wallet verification calls still need
+end-to-end confirmation. Credential issuance and success results
 come from actual transactions.
 
 ## Local setup
@@ -23,17 +24,25 @@ script copies only public prover keys, verifier keys and ZKIR assets from
 `contract/managed/` into the static site. Generated JavaScript is bundled directly
 from the original contract. Run `npm run compile` after any Compact source change.
 
-Set public `VITE_MIDNIGHT_NETWORK` and `VITE_CONTRACT_ADDRESS` in
+The interface defaults to the confirmed Preprod deployment receipt. Override
+public `VITE_MIDNIGHT_NETWORK` and `VITE_CONTRACT_ADDRESS` in
 `frontend/.env.local`, or enter them in the interface. Only Preview and Preprod
 are supported. Connect Midnight Lace or another compatible connector API 4 wallet;
 ordinary Cardano Lace integration is insufficient.
 
-The wallet's configured proof URL must be loopback. If absent, the app uses
-`http://127.0.0.1:6300`. Start proof server 8.1.0 on that address. A hosted HTTPS
+ZeroPass sends credential proofs to `http://127.0.0.1:6300`, independently of
+the wallet's own prover preference. Start proof server 8.1.0 on that address. A hosted HTTPS
 site may require browser permission to reach a local service; the app does not
 silently switch to a remote prover. Witness material reaches the local proving
 process, not the public indexer. The browser orchestrates proving; the Docker
 server performs proof computation.
+
+Choose **Check local proof server** to test reachability before submitting any
+private inputs. In Brave, open `brave://settings/content/localhostAccess` and
+allow `https://zero-pass-zvhh.vercel.app`; if a separate Local network access
+setting is shown for the site, allow that as well. Reload after changing the
+permission. This is a per-site setting; global protections need not be disabled.
+See [Brave's localhost permission guidance](https://brave.com/privacy-updates/27-localhost-permission/).
 
 ## Credential lifecycle
 
@@ -114,7 +123,8 @@ npx vercel deploy --prod
 ```
 
 No application secret belongs in Vercel or a `VITE_*` value. The Level 2 hosted
-URL remains unverified until this deployment and a real transaction are checked.
+URL is live; hosted-origin proof-server access and a real wallet transaction
+must still be confirmed in the user's browser.
 
 ## Demo video (under two minutes)
 
@@ -136,10 +146,16 @@ cut; never replace a failed/unknown result with a simulated success.
 
 ## Remaining submission requirements
 
-- Fund the locally created test wallet and finish Level 1 deployment.
 - Exercise the complete flow using a real installed Midnight wallet.
-- Publish and verify the Level 2 frontend URL against that contract.
+- Verify hosted-origin local-network permission and the resulting transaction.
 - Record the real successful call and update README evidence links.
+
+Level 1 deployment and Level 2 frontend publication are complete. The demo
+credential's administrator/issuer setup has finalized on Preprod; see
+`deployments/preprod.level2-setup.json`. Localhost and the public site have
+separate vault storage. Export the encrypted backup from localhost, then connect
+the same wallet and restore that backup on the public site using its passphrase.
+Creating a new vault creates a different commitment that needs separate issuance.
 
 Session expiry, server-side access decisions, issuer rotation/removal, credential
 expiry and unlinkable presentations are future product work, not implemented

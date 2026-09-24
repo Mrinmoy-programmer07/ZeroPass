@@ -15,6 +15,7 @@ import { assertNetwork } from './connector.ts';
 import type { WalletConnection } from './connector.ts';
 import { confirmTransaction, executeTransaction } from './transactions.ts';
 import type { Progress } from './transactions.ts';
+import { checkLocalProver } from './prover.ts';
 
 type PrivateState = Partial<Record<'secret' | 'salt' | 'credentialType' | 'adminSecret' | 'issuerSecret', Uint8Array>>;
 const read = (name: keyof PrivateState) => ({ privateState }: { privateState: PrivateState }): [PrivateState, Uint8Array] => {
@@ -122,6 +123,7 @@ export function createClient(config: Target, connection: WalletConnection, asset
           // Holder witnesses must stay on this device, independently of Lace's
           // remote prover preference for its own wallet operations.
           const proofUrl = localProofUrl();
+          await checkLocalProver();
           return httpClientProofProvider(proofUrl, zk).proveTx(unproven);
         },
         async balance(proven) {

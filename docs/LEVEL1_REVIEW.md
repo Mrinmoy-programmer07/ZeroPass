@@ -36,7 +36,8 @@ instead of the original compiler 0.34 screenshot.
 
 This list records the original audit. Level 2 subsequently implements the wallet,
 vault and institution UI; see [LEVEL2.md](LEVEL2.md) for current status. The contract
-is deployed; browser wallet verification and public frontend publication remain pending.
+is deployed and the Level 2 frontend is published; full browser-wallet
+verification remains pending. See the current [verification record](LEVEL2_VERIFICATION.md).
 
 - Connect the frontend to a real Midnight wallet and providers, with transaction
   pending/failure/finality states and local credential persistence/recovery.
