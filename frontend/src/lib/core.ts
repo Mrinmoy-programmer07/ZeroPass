@@ -62,6 +62,8 @@ export function safeError(error: unknown): string {
   const code = (error as { code?: unknown } | null)?.code;
   if (code === 'Rejected' || code === 'PermissionRejected') return 'The wallet request was rejected. No success is assumed; review the transaction status before retrying.';
   if (code === 'Disconnected') return 'The wallet disconnected. Reconnect to the selected test network.';
+  if (code === 'InternalError') return 'Lace reported InternalError. Check its DUST balance, synchronization and extension version. Private wallet error details were not displayed.';
+  if (code === 'InvalidRequest') return 'Lace rejected the transaction format (InvalidRequest). Check that your wallet version supports the current Preprod protocol. Private wallet error details were not displayed.';
   // SDK errors may embed witnesses or transaction preimages. Never echo them.
   return 'The operation could not finish. Check your wallet, network, local proof server and credential status. Private error details were not displayed.';
 }

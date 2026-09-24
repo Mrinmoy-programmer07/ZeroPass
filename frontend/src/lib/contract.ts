@@ -11,7 +11,7 @@ import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client
 import { shieldedKeys } from './addresses.ts';
 import { bytes, hex, localProofUrl, typeBytes, UserError, withTimeout } from './core.ts';
 import type { Credential, Target, IssuanceRequest } from './core.ts';
-import { assertNetwork } from './connector.ts';
+import { assertNetwork, requireWalletDust } from './connector.ts';
 import type { WalletConnection } from './connector.ts';
 import { confirmTransaction, executeTransaction } from './transactions.ts';
 import type { Progress } from './transactions.ts';
@@ -128,6 +128,7 @@ export function createClient(config: Target, connection: WalletConnection, asset
         },
         async balance(proven) {
           await assertSession();
+          await requireWalletDust(connection.api);
           const response = await connection.api.balanceUnsealedTransaction(hex(proven.serialize()));
           const transaction = Transaction.deserialize('signature', 'proof', 'binding', bytes(response.tx, response.tx.length / 2));
           const txId = transaction.identifiers()[0];

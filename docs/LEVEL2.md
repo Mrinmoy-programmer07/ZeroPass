@@ -48,6 +48,10 @@ See [Brave's localhost permission guidance](https://brave.com/privacy-updates/27
 
 1. Obtain the finalized contract address using [DEPLOYMENT.md](DEPLOYMENT.md).
 2. Connect a funded wallet to that address and network.
+   The connected Lace wallet needs its own DUST. The SDK deployment wallet is a
+   separate account; funding it does not fund Lace. Zero DUST capacity means the
+   wallet needs test NIGHT and DUST generation enabled. Positive capacity with
+   zero balance requires accrual/synchronization; Lace calculates the final fee.
 3. Create a holder credential. The browser generates its 32-byte secret and salt
    cryptographically; neither is rendered. Credential type labels use uppercase
    ASCII padded to 32 bytes, matching the generated Compact helper's encoding.

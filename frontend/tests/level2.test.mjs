@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { hex, bytes, target, typeBytes, publicRequest, parseRequest, localProofUrl, safeError } from '../src/lib/core.ts';
 import { seal, unseal } from '../src/lib/vault.ts';
-import { discoverWallets, connectWallet } from '../src/lib/connector.ts';
+import { discoverWallets, connectWallet, requireWalletDust } from '../src/lib/connector.ts';
 import { executeTransaction, confirmTransaction } from '../src/lib/transactions.ts';
 import { shieldedKeys } from '../src/lib/addresses.ts';
 import { bech32m } from '@scure/base';
@@ -95,6 +95,16 @@ describe('Midnight wallet connector', () => {
     await assert.rejects(connectWallet({ id: 'a', api: wallet(api(), { connect: async () => { throw { code: 'Rejected' }; } }) }, 'preprod'));
     assert.match(safeError({ code: 'Rejected' }), /rejected/);
     assert.ok(!safeError(new Error(credential.secret)).includes(credential.secret));
+    for (const code of ['InternalError', 'InvalidRequest']) {
+      const message = safeError({ code, reason: credential.secret });
+      assert.match(message, new RegExp(code));
+      assert.ok(!message.includes(credential.secret));
+    }
+  });
+  it('distinguishes missing DUST capacity from waiting for accrual before wallet balancing', async () => {
+    await assert.rejects(requireWalletDust({ getDustBalance: async () => ({ balance: 0n, cap: 0n }) }), /no DUST capacity/);
+    await assert.rejects(requireWalletDust({ getDustBalance: async () => ({ balance: 0n, cap: 10n }) }), /accrue/);
+    await requireWalletDust({ getDustBalance: async () => ({ balance: 1n, cap: 10n }) });
   });
 });
 

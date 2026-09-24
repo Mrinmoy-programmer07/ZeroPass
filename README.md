@@ -147,7 +147,7 @@ The UI uses the actual SDK and compiled artifacts, with no simulation fallback.
 | --- | --- |
 | Wallet connect/disconnect and address display | Implemented with Midnight connector API 4; isolated connector/UI tests |
 | Missing wallet, rejected request and wrong network | Handled and tested |
-| Frontend regression suite | 22 passing tests in addition to Level 1's 31 tests |
+| Frontend regression suite | 23 passing tests in addition to Level 1's 31 tests |
 | Circuit building and local proving | Real browser WASM transaction and local-server proof passed |
 | Wallet approval and submission | Real-wallet verification transaction pending |
 | Private holder inputs kept off-screen | Randomly generated; encrypted at rest; only public request fields displayed |

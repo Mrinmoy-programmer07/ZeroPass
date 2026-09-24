@@ -7,7 +7,7 @@ user-reported wallet behavior and confirmed chain evidence are distinguished bel
 
 | Boundary | Result |
 | --- | --- |
-| Frontend checks | 22 tests, lint and TypeScript/Vite production build pass |
+| Frontend checks | 23 tests, lint and TypeScript/Vite production build pass |
 | Contract/deployment checks | 31 root tests pass after the ws 8.21.3 update |
 | Production dependency audits | Root and frontend each report zero vulnerabilities with `--omit=dev` |
 | Real browser local proof | PASS: browser WASM builds `verify_credential`; proof server 8.1.0 generates the proof |
@@ -15,7 +15,7 @@ user-reported wallet behavior and confirmed chain evidence are distinguished bel
 | Hosted proof assets | All 12 prover/verifier/ZKIR files match `contract/managed/` byte-for-byte |
 | Real Lace connection | User reports successful connection in Brave and supplies public issuance requests from the vault |
 | Credential setup | Real SDK-wallet issuer registration and issuance finalized on Preprod; receipts linked below |
-| Hosted local-network access | Automated browser permission is `denied`; user-browser access still needs verification |
+| Hosted local-network access | Automated browser permission is `denied`; user-operated Brave subsequently reached the wallet approval stage, establishing local proof completion in that attempt |
 | Holder verification and demo | Pending successful real-wallet transaction and a new recording |
 
 The browser run found an SDK integration failure: its fetch provider invoked an
@@ -27,6 +27,10 @@ of the wallet's own prover preference. No remote proving fallback was introduced
 The connection panel also checks the local prover's version without sending
 credential inputs. Blocked requests show per-site permission guidance instead
 of an opaque SDK error. Three additional tests cover this preflight behavior.
+The user's hosted attempt subsequently stopped during wallet approval/balancing,
+before a transaction ID was retained or submission began. The application now
+checks Lace's DUST balance and reports only allowlisted wallet error codes;
+one further regression covers zero capacity versus waiting for DUST accrual.
 
 Public receipts:
 
@@ -83,7 +87,7 @@ fixture proof submits an on-chain transaction.
 ## Not yet verified
 
 - A real installed wallet approving fees and submitting a successful verification.
-- Hosted-origin local-network permission and proof generation in Brave.
+- Repeatable successful hosted-origin proving and wallet finalization in Brave.
 - A successful browser wallet circuit call on Preview or Preprod.
 - A real-wallet demonstration video under two minutes.
 

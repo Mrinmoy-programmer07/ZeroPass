@@ -23,3 +23,12 @@ export async function connectWallet(choice: WalletChoice, network: Network) {
   return { api, addresses, name: choice.api.name };
 }
 export type WalletConnection = Awaited<ReturnType<typeof connectWallet>>;
+
+export async function requireWalletDust(api: Pick<ConnectedAPI, 'getDustBalance'>): Promise<void> {
+  const { balance, cap } = await api.getDustBalance();
+  if (balance <= 0n) {
+    throw new UserError(cap <= 0n
+      ? 'This Lace wallet has no DUST capacity. Fund its own test-network NIGHT address and enable DUST generation in Lace. Funding the separate SDK deployment wallet does not fund Lace.'
+      : 'This Lace wallet has no spendable DUST yet. Wait for DUST to accrue and for the wallet to finish syncing before retrying.');
+  }
+}
