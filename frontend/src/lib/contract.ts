@@ -119,8 +119,9 @@ export function createClient(config: Target, connection: WalletConnection, asset
       return executeTransaction({
         build,
         async prove(unproven) {
-          const walletConfig = await connection.api.getConfiguration();
-          const proofUrl = localProofUrl(walletConfig.proverServerUri);
+          // Holder witnesses must stay on this device, independently of Lace's
+          // remote prover preference for its own wallet operations.
+          const proofUrl = localProofUrl();
           return httpClientProofProvider(proofUrl, zk).proveTx(unproven);
         },
         async balance(proven) {

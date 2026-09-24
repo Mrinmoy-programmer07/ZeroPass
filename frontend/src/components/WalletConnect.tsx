@@ -43,6 +43,7 @@ export function WalletConnect({ midnight, config, onConfigure }: { midnight: Mid
       <button className="secondary" disabled={midnight.busy} onClick={midnight.disconnect}>Disconnect and lock</button>
       <p className="hint">Disconnect clears this app’s session. Revoke its permissions separately in your wallet if needed.</p>
     </>}
+    <p className="hint">Credential proofs use your local server at http://127.0.0.1:6300. Start it with npm run proof-server and allow local-network access if your browser asks.</p>
     {error && <p role="alert" className="error">{error}</p>}
   </section>;
 }
