@@ -48,7 +48,8 @@ export function issuerIdentity(secret: string): string { return hex(pureCircuits
 export function createClient(config: Target, connection: WalletConnection, assetUrl: string) {
   setNetworkId(config.network);
   const publicData = indexerPublicDataProvider(`https://indexer.${config.network}.midnight.network/api/v4/graphql`, `wss://indexer.${config.network}.midnight.network/api/v4/graphql/ws`);
-  const zk = new FetchZkConfigProvider<typeof circuits[number]>(assetUrl);
+  // The SDK invokes fetch as a provider method; browsers require Window as its receiver.
+  const zk = new FetchZkConfigProvider<typeof circuits[number]>(assetUrl, globalThis.fetch.bind(globalThis));
   const { coinPublicKey, encryptionPublicKey } = shieldedKeys(connection.addresses.shieldedAddress, config.network);
   const assertSession = async () => {
     await assertNetwork(connection.api, config.network);

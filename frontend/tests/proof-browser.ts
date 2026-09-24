@@ -15,7 +15,7 @@ export async function runBrowserProof() {
   const value = (n: number) => new Uint8Array(32).fill(n);
   const state = { adminSecret: value(1), issuerSecret: value(2), secret: value(3), salt: value(4), credentialType: value(5) };
   const keys = ZswapSecretKeys.fromSeed(value(6));
-  const zk = new FetchZkConfigProvider<Action['circuit']>(new URL('/zeropass/', location.origin).href);
+  const zk = new FetchZkConfigProvider<Action['circuit']>(new URL('/zeropass/', location.origin).href, globalThis.fetch.bind(globalThis));
   const walletProvider = {
     getCoinPublicKey: () => keys.coinPublicKey,
     getEncryptionPublicKey: () => keys.encryptionPublicKey,

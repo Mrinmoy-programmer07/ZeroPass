@@ -10,7 +10,8 @@ button.addEventListener('click', async () => {
   const result = document.querySelector('#result');
   result.textContent = 'Building fixture transaction and generating a real proof…';
   try { result.textContent = await runBrowserProof(); }
-  catch { result.textContent = 'FAIL: browser proof check. Inspect the local proof server and browser console.'; }
+  // This harness uses public fixtures only; production flows redact SDK errors.
+  catch (error) { console.error(error); result.textContent = `FAIL: ${error instanceof Error ? error.message : 'browser proof check'}`; }
   finally { button.disabled = false; }
 });
 </script></body></html>
