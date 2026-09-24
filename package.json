@@ -32,6 +32,6 @@
     "@midnight-ntwrk/midnight-js-utils": "4.1.1",
     "@midnightntwrk/wallet-sdk": "1.2.0",
     "rxjs": "7.8.2",
-    "ws": "8.18.3"
+    "ws": "8.21.3"
   }
 }
