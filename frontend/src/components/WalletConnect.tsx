@@ -3,10 +3,14 @@ import type { WalletChoice } from '../lib/connector.ts';
 import { safeError, target } from '../lib/core.ts';
 import type { Network, Target } from '../lib/core.ts';
 import type { Midnight } from '../hooks/useMidnight.ts';
+import preprodDeployment from '../../../deployments/preprod.json';
+
+const initialNetwork: Network = import.meta.env.VITE_MIDNIGHT_NETWORK === 'preview' ? 'preview' : 'preprod';
+const addressFor = (network: Network) => (network === initialNetwork ? import.meta.env.VITE_CONTRACT_ADDRESS : '') || (network === 'preprod' ? preprodDeployment.contractAddress : '');
 
 export function WalletConnect({ midnight, config, onConfigure }: { midnight: Midnight; config?: Target; onConfigure: (config: Target) => void }) {
-  const [network, setNetwork] = useState<Network>(import.meta.env.VITE_MIDNIGHT_NETWORK === 'preview' ? 'preview' : 'preprod');
-  const [address, setAddress] = useState(import.meta.env.VITE_CONTRACT_ADDRESS || '');
+  const [network, setNetwork] = useState<Network>(initialNetwork);
+  const [address, setAddress] = useState(addressFor(initialNetwork));
   const [wallets, setWallets] = useState<WalletChoice[]>([]);
   const [selected, setSelected] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +25,7 @@ export function WalletConnect({ midnight, config, onConfigure }: { midnight: Mid
     <div className="section-title"><span className="step">01</span><h2>Connect your wallet</h2><span className="badge">{midnight.connection ? 'Connected' : 'Disconnected'}</span></div>
     {!midnight.connection ? <>
       <div className="form-grid">
-        <label>Test network<select value={network} disabled={midnight.busy} onChange={e => setNetwork(e.target.value as Network)}><option value="preprod">Preprod</option><option value="preview">Preview</option></select></label>
+        <label>Test network<select value={network} disabled={midnight.busy} onChange={e => { const next = e.target.value as Network; setNetwork(next); setAddress(addressFor(next)); }}><option value="preprod">Preprod</option><option value="preview">Preview</option></select></label>
         <label>Deployed contract address<input value={address} disabled={midnight.busy} onChange={e => setAddress(e.target.value.trim())} placeholder="64-character hexadecimal address" spellCheck={false} /></label>
       </div>
       <p className="hint">Use the finalized Level 1 deployment address. Wallet fees require test-network DUST.</p>

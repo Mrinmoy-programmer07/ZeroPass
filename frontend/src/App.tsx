@@ -51,7 +51,7 @@ export default function App() {
         </div>}
       </section>}
       {midnight.connection && config ? <ConnectedWorkspace key={`${config.network}:${config.contractAddress}:${midnight.connection.addresses.shieldedAddress}`} midnight={midnight} config={config} /> :
-        <section className="panel empty-state"><ShieldCheck size={32} /><h2>A real contract connection</h2><p>Connect your wallet to open the vault and institution tools. No sample credentials, simulated proofs or placeholder transactions are used.</p><p className="hint">No deployed address is bundled yet. Complete Level 1 deployment, then enter its confirmed address above.</p></section>}
+        <section className="panel empty-state"><ShieldCheck size={32} /><h2>A real contract connection</h2><p>Connect your wallet to open the vault and institution tools. No sample credentials, simulated proofs or placeholder transactions are used.</p><p className="hint">ZeroPass is deployed on Preprod. Use the confirmed contract address from the README and a Midnight wallet on the same network.</p></section>}
       <section className="privacy-footer"><h2>What stays private?</h2><p>Holder secrets and salts are never rendered or sent to the indexer. Proving runs through your local proof server, which receives those inputs. Public commitments make credential activity linkable; this is not anonymous identity or a complete login service.</p><p>Use test credentials only. Losing your vault backup or passphrase can make a credential unrecoverable.</p></section>
     </main>
     <footer>ZeroPass · Compact circuits on Midnight · Preview / Preprod</footer>
